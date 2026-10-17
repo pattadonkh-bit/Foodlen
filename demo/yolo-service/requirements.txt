@@ -1,0 +1,7 @@
+flask
+ultralytics
+transformers
+torch
+pillow
+
+** runwith python -m pip install -r requirements.txt**
