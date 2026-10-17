@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Food Nutrition</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #f4f7f2;
+            color: #26352a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 560px;
+            background: white;
+            padding: 32px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px #0000000d;
+        }
+
+        h1 {
+            margin-top: 0;
+            text-align: center;
+            color: #26734d;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718074;
+            margin-bottom: 28px;
+        }
+
+        .upload-box {
+            border: 2px dashed #9bbca5;
+            border-radius: 14px;
+            padding: 28px 16px;
+            text-align: center;
+            background: #f9fcf8;
+        }
+
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            margin-top: 16px;
+        }
+
+        img {
+            display: none;
+            width: 100%;
+            max-height: 280px;
+            object-fit: contain;
+            margin-top: 20px;
+            border-radius: 12px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 22px;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #26734d;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d5d3d;
+        }
+
+        .note {
+            margin-top: 18px;
+            color: #7b857c;
+            font-size: 13px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <h1>AI Food Nutrition</h1>
+
+        <p class="subtitle">
+            อัปโหลดรูปอาหารเพื่อประเมินคุณค่าทางโภชนาการ
+        </p>
+
+        <form action="/analyze"
+              method="post"
+              enctype="multipart/form-data">
+
+            <div class="upload-box">
+                <div>เลือกรูปอาหารของคุณ</div>
+
+                <input
+                    type="file"
+                    id="foodImage"
+                    name="image"
+                    accept="image/*"
+                    required
+                >
+
+                <img id="preview" alt="ตัวอย่างรูปอาหาร">
+            </div>
+
+            <button type="submit">วิเคราะห์อาหาร</button>
+        </form>
+
+        <p class="note">
+            ผลโภชนาการเป็นค่าประมาณ ขึ้นอยู่กับอาหารและปริมาณที่ตรวจพบ
+        </p>
+    </main>
+
+    <script>
+        const fileInput = document.getElementById("foodImage");
+        const preview = document.getElementById("preview");
+
+        fileInput.addEventListener("change", function () {
+            const file = this.files[0];
+
+            if (file && file.type.startsWith("image/")) {
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = "block";
+            } else {
+                preview.removeAttribute("src");
+                preview.style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>
