@@ -1,0 +1,347 @@
+
+<!DOCTYPE html>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ผลการวิเคราะห์อาหาร | AI Food Nutrition</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 24px;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #f4f7f2;
+            color: #26352a;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 760px;
+            margin: 30px auto;
+            padding: 32px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px #0000000d;
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #26734d;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #718074;
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .file-card {
+            padding: 16px;
+            background: #f5f9f4;
+            border-radius: 12px;
+            overflow-wrap: anywhere;
+        }
+
+        .status {
+            margin: 20px 0;
+            padding: 14px;
+            background: #edf7ee;
+            border-radius: 10px;
+            color: #26734d;
+        }
+
+        .food-card {
+            margin-top: 22px;
+            padding: 24px;
+            border: 1px solid #e1eae0;
+            border-radius: 16px;
+            background: #fcfefb;
+        }
+
+        .food-name {
+            margin: 0 0 8px;
+            font-size: 25px;
+            color: #26734d;
+        }
+
+        .confidence {
+            color: #718074;
+            font-size: 14px;
+        }
+
+        .calories {
+            margin: 24px 0;
+            padding: 22px;
+            border-radius: 14px;
+            background: #edf7ee;
+            text-align: center;
+        }
+
+        .calories strong {
+            display: block;
+            font-size: 38px;
+            color: #26734d;
+        }
+
+        .calories span {
+            color: #718074;
+        }
+
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .nutrition-item {
+            padding: 16px 8px;
+            border: 1px solid #e1eae0;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .nutrition-value {
+            display: block;
+            font-size: 22px;
+            font-weight: bold;
+            color: #26734d;
+        }
+
+        .nutrition-label {
+            display: block;
+            margin-top: 6px;
+            color: #718074;
+            font-size: 13px;
+        }
+
+        .note {
+            margin-top: 22px;
+            padding: 14px;
+            background: #fff8e8;
+            color: #765b21;
+            border-radius: 10px;
+            line-height: 1.6;
+        }
+
+        .other-predictions {
+            margin-top: 22px;
+        }
+
+        .prediction-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e8eee7;
+        }
+
+        details {
+            margin-top: 20px;
+            color: #536357;
+        }
+
+        pre {
+            padding: 14px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            background: #f5f7f5;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .error {
+            color: #a12b2b;
+        }
+
+        .button {
+            display: block;
+            width: 100%;
+            margin-top: 24px;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #26734d;
+            color: white;
+            font-size: 16px;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .button:hover {
+            background: #1d5d3d;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+
+            .container {
+                margin: 12px auto;
+                padding: 22px;
+            }
+
+            .nutrition-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<main class="container">
+    <h1>ผลการวิเคราะห์อาหาร</h1>
+
+    <p class="subtitle">
+        AI Food Nutrition · วิเคราะห์ประเภทอาหารและโภชนาการโดยประมาณ
+    </p>
+
+    <div class="file-card">
+        <strong>ไฟล์รูปภาพ</strong>
+        <p th:text="${fileName}">food.jpg</p>
+    </div>
+
+    <div class="status" th:text="${message}">
+        วิเคราะห์รูปภาพเรียบร้อยแล้ว
+    </div>
+
+    <section class="food-card">
+        <h2 class="food-name" id="foodName">กำลังอ่านผล...</h2>
+        <div class="confidence" id="confidence"></div>
+
+        <div id="nutritionSection">
+            <div class="calories">
+                <strong id="calories">-</strong>
+                <span>กิโลแคลอรี (kcal)</span>
+            </div>
+
+            <div class="nutrition-grid">
+                <div class="nutrition-item">
+                    <span class="nutrition-value" id="protein">-</span>
+                    <span class="nutrition-label">โปรตีน (g)</span>
+                </div>
+
+                <div class="nutrition-item">
+                    <span class="nutrition-value" id="fat">-</span>
+                    <span class="nutrition-label">ไขมัน (g)</span>
+                </div>
+
+                <div class="nutrition-item">
+                    <span class="nutrition-value" id="carbs">-</span>
+                    <span class="nutrition-label">คาร์โบไฮเดรต (g)</span>
+                </div>
+            </div>
+
+            <p class="confidence" id="serving"></p>
+        </div>
+
+        <div class="note" id="nutritionUnavailable" hidden>
+            ยังไม่มีข้อมูลโภชนาการสำหรับเมนูนี้
+        </div>
+    </section>
+
+    <section class="other-predictions">
+        <h2>ผลการจำแนกอันดับอื่น</h2>
+        <div id="predictionList"></div>
+    </section>
+
+    <div class="note" id="modelNote">
+        ผลจำแนกเป็นการคาดเดาจากภาพ ส่วนโภชนาการเป็นค่าประมาณ
+    </div>
+
+    <details>
+        <summary>ดูข้อมูลดิบจาก AI (JSON)</summary>
+        <pre id="rawResult" th:text="${result}"></pre>
+    </details>
+
+    <a class="button" href="/">วิเคราะห์รูปอื่น</a>
+</main>
+
+<script>
+    const rawResult = document.getElementById("rawResult");
+
+    try {
+        const data = JSON.parse(rawResult.textContent);
+        const food = data.food;
+
+        if (!food) {
+            throw new Error("ไม่พบข้อมูลอาหาร");
+        }
+
+        document.getElementById("foodName").textContent =
+            food.displayName || food.name || "ไม่ทราบชื่ออาหาร";
+
+        document.getElementById("confidence").textContent =
+            "ความมั่นใจของ AI: " +
+            (Number(food.confidence || 0) * 100).toFixed(2) + "%";
+
+        if (food.nutritionAvailable && food.nutrition) {
+            const nutrition = food.nutrition;
+
+            document.getElementById("calories").textContent =
+                nutrition.calories ?? "-";
+
+            document.getElementById("protein").textContent =
+                nutrition.protein ?? "-";
+
+            document.getElementById("fat").textContent =
+                nutrition.fat ?? "-";
+
+            document.getElementById("carbs").textContent =
+                nutrition.carbohydrates ?? "-";
+
+            document.getElementById("serving").textContent =
+                "หน่วยบริโภคอ้างอิง: " +
+                (nutrition.serving || "ไม่ได้ระบุ");
+        } else {
+            document.getElementById("nutritionSection").hidden = true;
+            document.getElementById("nutritionUnavailable").hidden = false;
+        }
+
+        const predictionList =
+            document.getElementById("predictionList");
+
+        (data.predictions || []).forEach(function (item) {
+            const row = document.createElement("div");
+            row.className = "prediction-row";
+
+            const name = document.createElement("span");
+            name.textContent = (item.name || "Unknown")
+                .replaceAll("_", " ");
+
+            const score = document.createElement("strong");
+            score.textContent =
+                (Number(item.confidence || 0) * 100).toFixed(2) + "%";
+
+            row.append(name, score);
+            predictionList.appendChild(row);
+        });
+
+        if (data.note) {
+            document.getElementById("modelNote").textContent =
+                data.note;
+        }
+    } catch (error) {
+        document.getElementById("foodName").textContent =
+            "ไม่สามารถอ่านผลการวิเคราะห์ได้";
+
+        document.getElementById("confidence").textContent =
+            "โปรดตรวจสอบข้อมูล JSON";
+
+        document.getElementById("nutritionSection").hidden = true;
+        document.getElementById("nutritionUnavailable").hidden = false;
+
+        document.getElementById("modelNote").textContent =
+            "เกิดข้อผิดพลาดในการอ่านผลลัพธ์ กรุณาตรวจสอบ Terminal";
+    }
+</script>
+</body>
+</html>
