@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('ผลการประเมินมื้ออาหาร')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('home')}"></header>
+<main class="container narrow">
+    <nav class="crumbs">
+        <a th:href="@{/}">หน้าแรก</a><span class="sep">›</span>
+        <a th:href="@{/children/{id}(id=${ov.child.id})}" th:text="${ov.child.name}">เด็ก</a><span class="sep">›</span>
+        <b>ผลประเมินมื้ออาหาร</b>
+    </nav>
+    <ol th:replace="~{fragments :: steps(3)}"></ol>
+    <h1 th:text="${menu.nameTh}">เมนู</h1>
+    <p class="subtitle"
+       th:text="${ov.child.name + ' · ' + meal.mealType.label + ' · ' + #temporals.format(meal.eatenAt,'d/M/yyyy HH:mm') + ' · สัดส่วน ' + meal.portion + ' × ' + menu.serving}"></p>
+
+    <div class="bigLight" th:classappend="${meal.level.cssClass}">
+        <span class="dot"></span>
+        <span th:text="'ไฟ' + ${meal.level.label}">ไฟเขียว</span>
+    </div>
+
+    <section class="card">
+        <h2>💡 คำแนะนำ</h2>
+        <ul style="margin:0;padding-left:20px">
+            <li th:each="m : ${messages}" th:text="${m}" style="margin:4px 0"></li>
+        </ul>
+        <p class="muted" th:if="${meal.statusAtMeal != null}" style="margin-bottom:0"
+           th:text="'ประเมินจากภาวะโภชนาการของเด็ก: ' + ${meal.statusAtMeal.label}"></p>
+    </section>
+
+    <div class="grid-2">
+        <section class="card" style="text-align:center">
+            <h2>สัดส่วนพลังงานของมื้อนี้</h2>
+            <div class="chart-box donut" th:if="${meal.shareOfDaily != null}" style="height:190px">
+                <canvas th:attr="data-gauge=${#numbers.formatDecimal(meal.shareOfDaily*100,1,1,'POINT')},
+                                 data-color=${meal.level.name() == 'RED' ? '#e5484d' : (meal.level.name() == 'YELLOW' ? '#f5a524' : '#2e9e5b')}"></canvas>
+            </div>
+            <p class="muted" th:if="${meal.shareOfDaily == null}">ประเมินสัดส่วนไม่ได้ (ไม่มีข้อมูลพลังงานของเมนู หรืออายุนอกช่วง 6–12 ปี)</p>
+            <p class="muted" th:if="${meal.shareOfDaily != null}"
+               th:text="${#numbers.formatDecimal(meal.energyKcal,1,0)} + ' จาก ' + ${ov.dailyKcal} + ' กิโลแคลอรีต่อวัน'"></p>
+        </section>
+
+        <section class="card">
+            <h2>คุณค่าทางโภชนาการ</h2>
+            <div class="stat" style="margin-bottom:12px">
+                <b th:text="${meal.energyKcal != null} ? ${#numbers.formatDecimal(meal.energyKcal,1,0)} : '–'">0</b>
+                <span>พลังงานของมื้อนี้ (กิโลแคลอรี)</span>
+            </div>
+            <div class="muted" th:text="'ที่มา: ' + ${meal.source.label}
+                 + (${meal.aiConfidence != null} ? ' · ความมั่นใจ ' + ${#numbers.formatDecimal(meal.aiConfidence*100,1,0)} + '%' : '')"></div>
+        </section>
+    </div>
+
+    <section class="card">
+        <h2>รายละเอียดสารอาหาร</h2>
+        <table>
+            <thead><tr><th>สารอาหาร</th><th class="num">ต่อ 1 หน่วยบริโภค</th><th class="num">ของมื้อนี้</th></tr></thead>
+            <tbody>
+            <tr>
+                <td>พลังงาน (kcal)</td>
+                <td class="num" th:text="${menu.energyKcal != null} ? ${#numbers.formatDecimal(menu.energyKcal,1,0)} : 'ไม่มีข้อมูล'"></td>
+                <td class="num" th:text="${meal.energyKcal != null} ? ${#numbers.formatDecimal(meal.energyKcal,1,0)} : '–'"></td>
+            </tr>
+            <tr>
+                <td>โปรตีน (g)</td>
+                <td class="num" th:text="${menu.proteinG != null} ? ${#numbers.formatDecimal(menu.proteinG,1,1)} : 'ไม่มีข้อมูล'"></td>
+                <td class="num" th:text="${menu.proteinG != null} ? ${#numbers.formatDecimal(menu.proteinG*meal.portion,1,1)} : '–'"></td>
+            </tr>
+            <tr>
+                <td>ไขมัน (g)</td>
+                <td class="num" th:text="${menu.fatG != null} ? ${#numbers.formatDecimal(menu.fatG,1,1)} : 'ไม่มีข้อมูล'"></td>
+                <td class="num" th:text="${menu.fatG != null} ? ${#numbers.formatDecimal(menu.fatG*meal.portion,1,1)} : '–'"></td>
+            </tr>
+            <tr>
+                <td>คาร์โบไฮเดรต (g)</td>
+                <td class="num" th:text="${menu.carbG != null} ? ${#numbers.formatDecimal(menu.carbG,1,1)} : 'ไม่มีข้อมูล'"></td>
+                <td class="num" th:text="${menu.carbG != null} ? ${#numbers.formatDecimal(menu.carbG*meal.portion,1,1)} : '–'"></td>
+            </tr>
+            <tr th:if="${menu.sugarG != null}">
+                <td>น้ำตาล (g)</td>
+                <td class="num" th:text="${#numbers.formatDecimal(menu.sugarG,1,1)}"></td>
+                <td class="num" th:text="${#numbers.formatDecimal(menu.sugarG*meal.portion,1,1)}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="muted" style="margin:10px 0 0" th:text="'แหล่งข้อมูล: ' + ${menu.source} + ' (สถานะ: ' + ${menu.status == 'provisional' ? 'ค่าจากแหล่งทุติยภูมิ รอตรวจสอบ' : (menu.status == 'estimated' ? 'ค่าที่ผู้พัฒนาประมาณจากเมนูใกล้เคียง รอตรวจสอบ' : 'ยังไม่มีข้อมูล')} + ')'"></p>
+        <p class="muted" style="margin:6px 0 0" th:if="${menu.proteinG != null}">
+            โปรตีน ไขมัน และคาร์โบไฮเดรตเป็นค่าที่<b>คำนวณ</b>จากเมนูที่คล้ายกัน (ข้อมูล INMU ต่อ 100 กรัม ปรับตามพลังงานของเมนู) ไม่ใช่ค่าที่วัดของเมนูนี้โดยตรง
+        </p>
+        <div class="msg warn" th:if="${menu.status == 'estimated'}" style="margin:12px 0 0">
+            ค่าพลังงานของเมนูนี้เป็นการ<b>ประมาณ</b>จากเมนูที่คล้ายกัน ไม่ใช่ค่าที่ตรวจสอบของเมนูนี้โดยตรง ผลไฟจราจรจึงใช้เป็นแนวทางเบื้องต้นเท่านั้น
+        </div>
+    </section>
+
+    <div class="row">
+        <a class="btn" th:href="@{/children/{id}/meals/new(id=${ov.child.id})}">📷 บันทึกมื้อต่อไป</a>
+        <a class="btn secondary" th:href="@{/children/{id}/weekly(id=${ov.child.id})}">📊 สรุปรายสัปดาห์</a>
+        <a class="btn secondary" th:href="@{/children/{id}(id=${ov.child.id})}">กลับหน้าเด็ก</a>
+    </div>
+    <div class="row" style="margin-top:12px">
+        <a class="btn secondary small" th:href="@{/children/{id}/meals/{mid}/edit(id=${ov.child.id},mid=${meal.id})}">✏️ แก้ไขมื้อนี้</a>
+        <form th:action="@{/children/{id}/meals/{mid}/delete(id=${ov.child.id},mid=${meal.id})}" method="post"
+              onsubmit="return confirm('ลบมื้อนี้?');">
+            <button class="btn danger small" type="submit">ลบมื้อนี้</button>
+        </form>
+    </div>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+<th:block th:replace="~{fragments :: chartScripts}"></th:block>
+</body>
+</html>

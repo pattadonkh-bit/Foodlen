@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('ยืนยันเมนู')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('home')}"></header>
+<main class="container narrow">
+    <nav class="crumbs">
+        <a th:href="@{/}">หน้าแรก</a><span class="sep">›</span>
+        <a th:href="@{/children/{id}(id=${ov.child.id})}" th:text="${ov.child.name}">เด็ก</a><span class="sep">›</span>
+        <b>บันทึกมื้ออาหาร</b>
+    </nav>
+    <ol th:replace="~{fragments :: steps(2)}"></ol>
+
+    <h1 th:text="${aiUsed} ? '🔍 ผลการจำแนกอาหาร' : '🍽️ เลือกเมนูเอง'">ผลการจำแนกอาหาร</h1>
+    <p class="subtitle">บันทึกมื้อของ <b th:text="${ov.child.name}"></b></p>
+
+    <form class="card" th:action="@{/children/{id}/meals(id=${ov.child.id})}" method="post">
+        <div th:if="${aiUsed}">
+            <img class="preview" th:if="${imageData != null}" th:src="${imageData}" alt="ภาพอาหาร">
+
+            <div style="margin:14px 0">
+                <div class="row spread" style="margin-bottom:6px">
+                    <b>ความมั่นใจของ AI</b>
+                    <b th:text="${#numbers.formatDecimal(topConfidence*100,1,1)} + '%'">0%</b>
+                </div>
+                <div class="bar" style="position:relative;height:14px">
+                    <i th:attr="style=${'width:' + #numbers.formatDecimal(topConfidence*100,1,1,'POINT') + '%;' + (confident ? '' : 'background:linear-gradient(90deg,#ffc65c,#f5a524)')}"></i>
+                    <span th:style="'position:absolute;top:-3px;bottom:-3px;width:2px;background:#1f2d26;left:' + ${#numbers.formatDecimal(threshold*100,1,1,'POINT')} + '%'"></span>
+                </div>
+                <div class="muted" style="margin-top:4px" th:text="'เส้นดำ = เกณฑ์ ' + ${#numbers.formatDecimal(threshold*100,1,0)} + '%'"></div>
+            </div>
+
+            <div class="msg ok" th:if="${confident}">✅ AI มั่นใจพอ — ตรวจสอบเมนูแล้วเลือกสัดส่วนได้เลย</div>
+            <div class="msg warn" th:unless="${confident}">⚠️ ความมั่นใจต่ำกว่าเกณฑ์ — กรุณายืนยันหรือเลือกเมนูที่ถูกต้อง</div>
+
+            <input type="hidden" name="aiTop" th:value="${topCode}">
+            <input type="hidden" name="aiConfidence" th:value="${topConfidence}">
+
+            <label>เมนูที่ AI คิดว่าใช่</label>
+            <label class="choice" th:each="c, st : ${candidates}"
+                   th:attr="data-kcal=${c.energyKcal},data-serving=${c.serving},data-label=${c.nameTh}">
+                <input type="radio" name="menuCode" th:value="${c.code}" th:checked="${st.first}" required>
+                <b th:text="${c.nameTh}">เมนู</b>
+                <span class="muted" th:text="'· ' + ${#numbers.formatDecimal(c.confidence*100,1,1)} + '%'"></span>
+                <span class="badge warn plain" th:unless="${c.hasEnergy}">ยังไม่มีข้อมูลพลังงาน</span>
+            </label>
+
+            <details style="margin-top:10px">
+                <summary>ไม่ใช่เมนูเหล่านี้? ค้นหาเมนูอื่น</summary>
+                <div th:replace="~{fragments :: menuPicker(${menus}, null)}"></div>
+            </details>
+        </div>
+
+        <div th:unless="${aiUsed}">
+            <label>ค้นหาและเลือกเมนู <span class="muted" style="font-weight:400">(มี <span th:text="${#lists.size(menus)}">0</span> เมนู)</span></label>
+            <div th:replace="~{fragments :: menuPicker(${menus}, null)}"></div>
+        </div>
+
+        <label style="margin-top:20px">กินไปเท่าไหร่? <span class="muted" style="font-weight:400">(1 = ปริมาณมาตรฐานของเมนู 1 หน่วย)</span></label>
+        <div class="portion">
+            <label><input type="radio" name="portion" value="0.5"> ½</label>
+            <label><input type="radio" name="portion" value="1" checked> 1</label>
+            <label><input type="radio" name="portion" value="1.5"> 1½</label>
+            <label><input type="radio" name="portion" value="2"> 2</label>
+            <label><input type="radio" name="portion" value="3"> 3</label>
+            <label><input type="radio" name="portion" value="5"> 5</label>
+        </div>
+        <div th:replace="~{fragments :: mealPreview(${ov.dailyKcal})}"></div>
+        <p class="muted" style="margin:8px 0 0">เมนูที่หน่วยเล็ก (เช่น 1 ชิ้น 1 ฟอง) ให้เลือกจำนวนหน่วยที่เด็กกินจริง ระบบไม่ประมาณน้ำหนักอาหารจากภาพ</p>
+
+        <div class="grid-2" style="gap:14px">
+            <div>
+                <label for="mealType">มื้อ</label>
+                <select id="mealType" name="mealType">
+                    <option th:each="t : ${mealTypes}" th:value="${t.name()}" th:text="${t.label}"
+                            th:selected="${t == mealType}"></option>
+                </select>
+            </div>
+            <div>
+                <label for="eatenDate">วันที่กิน</label>
+                <input type="date" id="eatenDate" name="eatenDate" th:value="${eatenDate}" th:max="${today}">
+            </div>
+        </div>
+
+        <div class="row" style="margin-top:20px">
+            <button class="btn" type="submit">บันทึกและดูผลประเมิน →</button>
+            <a class="btn secondary" th:if="${aiUsed}" th:href="@{/children/{id}/meals/new(id=${ov.child.id})}">ถ่ายใหม่</a>
+            <a class="btn secondary" th:unless="${aiUsed}" th:href="@{/children/{id}(id=${ov.child.id})}">ยกเลิก</a>
+        </div>
+    </form>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

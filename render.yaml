@@ -1,0 +1,63 @@
+# Render Blueprint (แพ็กเกจฟรีทั้งหมด): เว็บ Foodlen + บริการ AI (ONNX) โดยฐานข้อมูลใช้ Neon Postgres (แพ็กเกจฟรี)
+# ใช้งาน: Render Dashboard > New > Blueprint > เลือก repo/branch นี้ แล้วกรอกค่าที่ขึ้น "Enter value" (sync: false)
+#
+# ข้อควรรู้ของแพ็กเกจฟรี: แต่ละ service หลับเมื่อไม่มีคนเข้า 15 นาที (ตื่นครั้งแรก ~30-60 วินาที) และมีชั่วโมงใช้งานฟรีรวม ~750 ชม./เดือนต่อ workspace
+envVarGroups:
+  # รหัสลับร่วมระหว่างเว็บกับบริการ AI (สุ่มให้อัตโนมัติ) เพราะบริการ AI บนแพ็กเกจฟรีเปิดเป็น URL สาธารณะ จึงรับเฉพาะคำขอที่ส่งรหัสนี้
+  - name: foodlen-shared
+    envVars:
+      - key: FOODLEN_AI_TOKEN
+        generateValue: true
+
+services:
+  - type: web
+    name: foodlen-web
+    runtime: docker
+    region: singapore
+    dockerfilePath: ./demo/Dockerfile
+    dockerContext: ./demo
+    plan: free
+    healthCheckPath: /login
+    envVars:
+      - fromGroup: foodlen-shared
+      # Neon: jdbc:postgresql://<host>/<db>?sslmode=require  (host แบบมี -pooler)
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      # บัญชีครู/นักโภชนาการ (อีเมลเป็นชื่อล็อกอิน) สร้างอัตโนมัติถ้ายังไม่มี
+      - key: FOODLEN_BOOTSTRAP_STAFF_USERNAME
+        sync: false
+      - key: FOODLEN_BOOTSTRAP_STAFF_PASSWORD
+        sync: false
+      - key: FOODLEN_BOOTSTRAP_STAFF_DISPLAY_NAME
+        value: ครู/นักโภชนาการ
+      # URL สาธารณะของ foodlen-ai เช่น https://foodlen-ai.onrender.com (ดูจากหน้า service หลังสร้าง ถ้าชื่อซ้ำ Render จะเติมตัวอักษรต่อท้าย)
+      - key: FOODLEN_AI_SERVICE_URL
+        sync: false
+      # รอบริการ AI ตื่นจากการหลับได้นานขึ้น
+      - key: FOODLEN_AI_READ_TIMEOUT_SECONDS
+        value: "90"
+      - key: FOODLEN_SEED_DEMO
+        value: "false"
+      # Render ให้ HTTPS อยู่หน้าเว็บ: เชื่อ X-Forwarded-* และตั้งคุกกี้เป็น Secure
+      - key: SERVER_FORWARD_HEADERS_STRATEGY
+        value: framework
+      - key: SERVER_SERVLET_SESSION_COOKIE_SECURE
+        value: "true"
+      # แพ็กเกจฟรีมี RAM 512 MB: จำกัด heap และ JIT ให้ประหยัด
+      - key: JAVA_TOOL_OPTIONS
+        value: -XX:MaxRAMPercentage=60 -XX:MaxMetaspaceSize=160m -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss512k
+
+  - type: web
+    name: foodlen-ai
+    runtime: docker
+    region: singapore
+    dockerfilePath: ./demo/yolo-service/Dockerfile
+    dockerContext: ./demo/yolo-service
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - fromGroup: foodlen-shared

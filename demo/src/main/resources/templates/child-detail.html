@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head(${ov.child.name})}"></head>
+<body>
+<header th:replace="~{fragments :: nav('home')}"></header>
+<main class="container">
+
+    <nav class="crumbs">
+        <a th:href="@{/}">หน้าแรก</a><span class="sep">›</span>
+        <b th:text="${ov.child.name}">เด็ก</b>
+    </nav>
+
+    <div class="page-head">
+        <div class="kid-head" style="margin:0">
+            <div class="avatar" style="width:64px;height:64px;font-size:28px" th:classappend="${ov.avatarClass}" th:text="${ov.initial}">ก</div>
+            <div>
+                <h1 style="margin:0" th:text="${ov.child.name}">ชื่อ</h1>
+                <div class="muted" th:text="${ov.child.sex.label + ' · อายุ ' + ov.ageText + ' · เกิด ' + #temporals.format(ov.child.birthDate,'d/M/yyyy')
+                                             + (ov.child.classroom != null ? ' · ชั้น/ห้อง ' + ov.child.classroom : '')}"></div>
+            </div>
+        </div>
+        <div class="row">
+            <a class="btn cta-primary" th:href="@{/children/{id}/meals/new(id=${ov.child.id})}">📷 บันทึกมื้ออาหาร</a>
+            <a class="btn secondary" th:href="@{/children/{id}/weekly(id=${ov.child.id})}">📊 สรุปรายสัปดาห์</a>
+        </div>
+    </div>
+
+    <div class="msg ok" th:if="${message}" th:text="${message}"></div>
+    <div class="msg error" th:if="${error}" th:text="${error}"></div>
+    <div class="msg warn" th:unless="${ov.inTargetAge}">
+        อายุของเด็กอยู่นอกกลุ่มเป้าหมาย 6–12 ปี ระบบยังประเมินภาวะโภชนาการได้ แต่ไม่มีพลังงานอ้างอิงต่อวันสำหรับประเมินมื้ออาหาร
+    </div>
+
+    <nav class="section-nav" aria-label="ไปยังหัวข้อ">
+        <a href="#status">ภาวะโภชนาการ</a>
+        <a href="#meals">มื้ออาหาร</a>
+        <a href="#growth">กราฟการเจริญเติบโต</a>
+        <a href="#measure">น้ำหนัก-ส่วนสูง</a>
+        <a href="#manage">ข้อมูลเด็ก</a>
+    </nav>
+
+    <!-- ภาวะโภชนาการ -->
+    <section class="card" id="status">
+        <div class="card-head">
+            <h2>ภาวะโภชนาการ</h2>
+            <span class="badge" th:if="${ov.status != null}" th:classappend="${ov.status.status.cssClass}"
+                  style="font-size:17px;padding:5px 16px" th:text="${ov.status.status.label}">สมส่วน</span>
+        </div>
+        <div th:if="${ov.status != null}">
+            <p class="muted" style="margin-top:0"
+               th:text="'ตามเกณฑ์ BMI-for-age (WHO 2007) · วัดเมื่อ ' + ${#temporals.format(ov.latest.measuredOn,'d/M/yyyy')}
+                        + (${ov.dailyKcal != null} ? ' · พลังงานอ้างอิงต่อวัน ' + ${ov.dailyKcal} + ' กิโลแคลอรี' : '')"></p>
+            <div class="grid-4">
+                <div class="stat"><b th:text="${#numbers.formatDecimal(ov.latest.weightKg,1,1)}">0</b><span>น้ำหนัก (กก.)</span></div>
+                <div class="stat"><b th:text="${#numbers.formatDecimal(ov.latest.heightCm,1,1)}">0</b><span>ส่วนสูง (ซม.)</span></div>
+                <div class="stat"><b th:text="${#numbers.formatDecimal(ov.status.bmi,1,1)}">0</b><span>BMI (กก./ม.²)</span></div>
+                <div class="stat"><b th:text="${#numbers.formatDecimal(ov.status.z,1,2)}">0</b><span>z-score ตามอายุ</span></div>
+            </div>
+
+            <div class="zmeter">
+                <div class="zbar"></div>
+                <div class="zmarker" th:style="'left:' + ${#numbers.formatDecimal(ov.ZPercent,1,1,'POINT')} + '%'">
+                    <em th:text="${#numbers.formatDecimal(ov.status.z,1,2)}">0</em><i></i>
+                </div>
+                <div class="zticks">
+                    <span style="left:7.1%">−3</span><span style="left:21.4%">−2</span><span style="left:50%">0</span>
+                    <span style="left:64.3%">+1</span><span style="left:78.6%">+2</span><span style="left:92.9%">+3</span>
+                </div>
+            </div>
+            <div class="zlabels"><span>← ผอม</span><span>สมส่วน (−2 ถึง +1)</span><span>อ้วน →</span></div>
+        </div>
+        <div class="msg warn" th:if="${ov.status == null}" th:text="${ov.statusProblem}"></div>
+    </section>
+
+    <!-- มื้อล่าสุด (ใช้บ่อยที่สุด จึงอยู่ถัดจากสถานะ) -->
+    <section class="card" id="meals">
+        <div class="card-head">
+            <h2>มื้อล่าสุด</h2>
+            <div class="row">
+                <a class="btn secondary small" th:href="@{/children/{id}/meals(id=${ov.child.id})}">ดูทั้งหมด</a>
+                <a class="btn secondary small" th:href="@{/children/{id}/meals/manual(id=${ov.child.id})}">+ เลือกเมนูเอง</a>
+            </div>
+        </div>
+        <div th:if="${#lists.isEmpty(recentMeals)}" style="text-align:center;padding:16px 0">
+            <p class="muted">ยังไม่มีมื้ออาหารที่บันทึก</p>
+            <a class="btn" th:href="@{/children/{id}/meals/new(id=${ov.child.id})}">📷 บันทึกมื้อแรก</a>
+        </div>
+        <div class="scroll" th:unless="${#lists.isEmpty(recentMeals)}">
+            <table>
+                <thead><tr><th>วันที่</th><th>มื้อ</th><th>เมนู</th><th class="num">สัดส่วน</th><th class="num">kcal</th><th>ผล</th><th></th></tr></thead>
+                <tbody>
+                <tr th:each="m : ${recentMeals}">
+                    <td th:text="${#temporals.format(m.eatenAt,'d/M HH:mm')}"></td>
+                    <td th:text="${m.mealType.label}"></td>
+                    <td><a th:href="@{/children/{id}/meals/{mid}(id=${ov.child.id},mid=${m.id})}"
+                           th:text="${menuByCode[m.menuCode]?.nameTh ?: m.menuCode}"></a></td>
+                    <td class="num" th:text="${m.portion}"></td>
+                    <td class="num" th:text="${m.energyKcal != null} ? ${#numbers.formatDecimal(m.energyKcal,1,0)} : '–'"></td>
+                    <td><span class="light" th:classappend="${m.level.cssClass}"></span><span th:text="${m.level.label}"></span></td>
+                    <td class="actions">
+                        <a class="btn secondary small" th:href="@{/children/{id}/meals/{mid}/edit(id=${ov.child.id},mid=${m.id})}">แก้ไข</a>
+                        <form th:action="@{/children/{id}/meals/{mid}/delete(id=${ov.child.id},mid=${m.id})}" method="post"
+                              onsubmit="return confirm('ลบมื้อนี้?');">
+                            <button class="btn danger small" type="submit">ลบ</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- กราฟการเจริญเติบโต -->
+    <section class="card" id="growth">
+        <div class="card-head">
+            <h2>กราฟ BMI ตามอายุ (เทียบเกณฑ์ WHO)</h2>
+        </div>
+        <div class="chart-box tall">
+            <canvas data-chart="growth" th:attr="data-url=@{/api/children/{id}/growth(id=${ov.child.id})}"></canvas>
+        </div>
+        <div class="chip-legend">
+            <span><i style="background:rgba(59,130,246,.35)"></i>ผอม (−3 ถึง −2 SD)</span>
+            <span><i style="background:rgba(31,157,107,.35)"></i>สมส่วน (−2 ถึง +1 SD)</span>
+            <span><i style="background:rgba(245,165,36,.45)"></i>น้ำหนักเกิน (+1 ถึง +2 SD)</span>
+            <span><i style="background:rgba(229,72,77,.4)"></i>อ้วน (เกิน +2 SD)</span>
+            <span><i style="background:#1f2d26;border-radius:50%"></i>เด็กคนนี้ (แต่ละจุดคือการวัดหนึ่งครั้ง)</span>
+        </div>
+    </section>
+
+    <!-- น้ำหนักและส่วนสูง: กราฟ + บันทึกใหม่ + ประวัติ -->
+    <section class="card" id="measure">
+        <h2>น้ำหนักและส่วนสูง</h2>
+        <div class="chart-box short">
+            <canvas data-chart="measures" th:attr="data-url=@{/api/children/{id}/growth(id=${ov.child.id})}"></canvas>
+        </div>
+
+        <details style="margin-top:16px" th:attr="open=${#lists.isEmpty(history)} ? 'open'">
+            <summary>＋ บันทึกการวัดใหม่</summary>
+            <form th:action="@{/children/{id}/measurements(id=${ov.child.id})}" method="post">
+                <label>วันที่วัด</label>
+                <input type="date" name="measuredOn" required th:value="${today}" th:max="${today}">
+                <div class="grid-2" style="gap:12px">
+                    <div><label>น้ำหนัก (กก.)</label><input type="number" name="weightKg" step="0.1" min="5" max="150" required></div>
+                    <div><label>ส่วนสูง (ซม.)</label><input type="number" name="heightCm" step="0.1" min="80" max="220" required></div>
+                </div>
+                <button class="btn" type="submit" style="margin-top:16px">บันทึก</button>
+            </form>
+        </details>
+
+        <details style="margin-top:10px" th:unless="${#lists.isEmpty(history)}">
+            <summary th:text="'ประวัติการวัด (' + ${#lists.size(history)} + ' ครั้ง)'">ประวัติการวัด</summary>
+            <div class="scroll">
+                <table>
+                    <thead><tr><th>วันที่วัด</th><th class="num">น้ำหนัก (กก.)</th><th class="num">ส่วนสูง (ซม.)</th><th></th></tr></thead>
+                    <tbody>
+                    <tr th:each="h : ${history}">
+                        <td th:text="${#temporals.format(h.measuredOn,'d/M/yyyy')}"></td>
+                        <td class="num" th:text="${#numbers.formatDecimal(h.weightKg,1,1)}"></td>
+                        <td class="num" th:text="${#numbers.formatDecimal(h.heightCm,1,1)}"></td>
+                        <td class="actions">
+                            <a class="btn secondary small" th:href="@{/children/{id}/measurements/{mid}/edit(id=${ov.child.id},mid=${h.id})}">แก้ไข</a>
+                            <form th:action="@{/children/{id}/measurements/{mid}/delete(id=${ov.child.id},mid=${h.id})}" method="post"
+                                  onsubmit="return confirm('ลบข้อมูลการวัดครั้งนี้?');">
+                                <button class="btn danger small" type="submit">ลบ</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </details>
+    </section>
+
+    <!-- จัดการข้อมูลเด็ก -->
+    <section class="card danger-zone" id="manage">
+        <h2>ข้อมูลเด็ก</h2>
+        <p class="muted">
+            ผู้ปกครองยินยอมเมื่อ <span th:text="${#temporals.format(ov.child.consentDate,'d/M/yyyy')}"></span>
+            · ระบบไม่เก็บไฟล์ภาพอาหาร
+        </p>
+        <div class="row">
+            <a class="btn secondary" th:href="@{/children/{id}/edit(id=${ov.child.id})}">✏️ แก้ไขข้อมูลเด็ก</a>
+            <form th:action="@{/children/{id}/delete(id=${ov.child.id})}" method="post"
+                  onsubmit="return confirm('ลบข้อมูลเด็กและประวัติทั้งหมด? การลบนี้ย้อนกลับไม่ได้');">
+                <button class="btn danger" type="submit">ลบข้อมูลเด็กคนนี้</button>
+            </form>
+        </div>
+    </section>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+<th:block th:replace="~{fragments :: chartScripts}"></th:block>
+</body>
+</html>

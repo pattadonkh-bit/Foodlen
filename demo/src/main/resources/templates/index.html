@@ -1,146 +1,87 @@
-
 <!DOCTYPE html>
 <html lang="th" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Food Nutrition</title>
-
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            min-height: 100vh;
-            font-family: Arial, sans-serif;
-            background: #f4f7f2;
-            color: #26352a;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 24px;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 560px;
-            background: white;
-            padding: 32px;
-            border-radius: 20px;
-            box-shadow: 0 8px 30px #0000000d;
-        }
-
-        h1 {
-            margin-top: 0;
-            text-align: center;
-            color: #26734d;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #718074;
-            margin-bottom: 28px;
-        }
-
-        .upload-box {
-            border: 2px dashed #9bbca5;
-            border-radius: 14px;
-            padding: 28px 16px;
-            text-align: center;
-            background: #f9fcf8;
-        }
-
-        input[type="file"] {
-            display: block;
-            width: 100%;
-            margin-top: 16px;
-        }
-
-        img {
-            display: none;
-            width: 100%;
-            max-height: 280px;
-            object-fit: contain;
-            margin-top: 20px;
-            border-radius: 12px;
-        }
-
-        button {
-            width: 100%;
-            margin-top: 22px;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            background: #26734d;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #1d5d3d;
-        }
-
-        .note {
-            margin-top: 18px;
-            color: #7b857c;
-            font-size: 13px;
-            text-align: center;
-        }
-    </style>
-</head>
-
+<head th:replace="~{fragments :: head('หน้าแรก')}"></head>
 <body>
-    <main class="container">
-        <h1>AI Food Nutrition</h1>
+<header th:replace="~{fragments :: nav('home')}"></header>
+<main class="container">
 
-        <p class="subtitle">
-            อัปโหลดรูปอาหารเพื่อประเมินคุณค่าทางโภชนาการ
-        </p>
+    <div class="page-head">
+        <div>
+            <h1 th:text="'สวัสดี ' + ${currentUser.displayName}">สวัสดี</h1>
+            <p class="subtitle" th:text="${currentUser.staff} ? 'คุณเห็นเด็กทุกคนในระบบ เริ่มจากดูภาพรวมห้องหรือเลือกเด็กเพื่อบันทึกมื้อ' : 'เลือกเด็กเพื่อบันทึกมื้ออาหาร หรือกด “เพิ่มเด็ก” ถ้ายังไม่มี'"></p>
+        </div>
+        <div class="row">
+            <a class="btn" th:href="@{/children/new}">+ เพิ่มเด็ก</a>
+            <a class="btn secondary" th:if="${currentUser.staff}" th:href="@{/staff/class}">📋 ภาพรวมห้อง</a>
+        </div>
+    </div>
 
-        <form action="/analyze"
-              method="post"
-              enctype="multipart/form-data">
+    <div class="msg ok" th:if="${message}" th:text="${message}"></div>
+    <div class="msg warn" th:unless="${aiUp}">
+        บริการ AI ยังไม่พร้อม (อาจกำลังเริ่มทำงาน) — ยังบันทึกมื้อได้โดยกด "เลือกเมนูเอง"
+    </div>
 
-            <div class="upload-box">
-                <div>เลือกรูปอาหารของคุณ</div>
+    <!-- ยังไม่มีเด็ก: แนะนำขั้นตอนเริ่มต้น -->
+    <section class="card welcome" th:if="${#lists.isEmpty(cards)}">
+        <h2>เริ่มต้นใช้งาน 3 ขั้นตอน</h2>
+        <ol class="how">
+            <li><b>เพิ่มเด็ก</b><span>กรอกชื่อเล่น วันเกิด น้ำหนัก ส่วนสูง (ต้องได้รับความยินยอมจากผู้ปกครอง) ระบบจะบอกภาวะโภชนาการ</span></li>
+            <li><b>ถ่ายภาพอาหาร</b><span>AI จำแนกเมนู ถ้าไม่มั่นใจจะให้คุณยืนยัน หรือค้นหาเมนูเองก็ได้</span></li>
+            <li><b>ดูไฟจราจรและคำแนะนำ</b><span>เทียบกับพลังงานที่เด็กควรได้รับ และดูสรุปรายสัปดาห์</span></li>
+        </ol>
+        <a class="btn" th:href="@{/children/new}">+ เพิ่มเด็กคนแรก</a>
+    </section>
 
-                <input
-                    type="file"
-                    id="foodImage"
-                    name="image"
-                    accept="image/*"
-                    required
-                >
+    <!-- การ์ดเด็ก -->
+    <div class="grid kids" th:unless="${#lists.isEmpty(cards)}">
+        <article class="kidcard" th:each="c : ${cards}">
+            <a class="kid-main" th:href="@{/children/{id}(id=${c.ov.child.id})}">
+                <div class="kid-head">
+                    <div class="avatar" th:classappend="${c.ov.avatarClass}" th:text="${c.ov.initial}">ก</div>
+                    <div>
+                        <h2 th:text="${c.ov.child.name}">ชื่อ</h2>
+                        <div class="muted" th:text="${c.ov.child.sex.label + ' · ' + c.ov.ageText + (c.ov.child.classroom != null ? ' · ' + c.ov.child.classroom : '')}">เพศ · อายุ</div>
+                    </div>
+                </div>
+                <div th:if="${c.ov.status != null}">
+                    <span class="badge" th:classappend="${c.ov.status.status.cssClass}" th:text="${c.ov.status.status.label}">สมส่วน</span>
+                    <span class="muted" style="margin-left:6px"
+                          th:text="'BMI ' + ${#numbers.formatDecimal(c.ov.status.bmi,1,1)}"></span>
+                </div>
+                <div class="muted" th:if="${c.ov.status == null}" th:text="${c.ov.statusProblem}"></div>
 
-                <img id="preview" alt="ตัวอย่างรูปอาหาร">
+                <div class="today">
+                    <span class="today-label">วันนี้</span>
+                    <span th:if="${c.mealsToday == 0}" class="muted">ยังไม่ได้บันทึกมื้อ</span>
+                    <span th:each="l : ${c.levelsToday}" class="light" th:classappend="${l.cssClass}" th:title="'ไฟ' + ${l.label}"></span>
+                    <span th:if="${c.mealsToday > 0}" class="muted" th:text="${c.mealsToday} + ' มื้อ'"></span>
+                </div>
+            </a>
+            <div class="kid-actions">
+                <a class="btn" th:href="@{/children/{id}/meals/new(id=${c.ov.child.id})}">📷 บันทึกมื้อ</a>
+                <a class="btn secondary" th:href="@{/children/{id}/weekly(id=${c.ov.child.id})}">📊 สรุปสัปดาห์</a>
             </div>
+        </article>
+    </div>
 
-            <button type="submit">วิเคราะห์อาหาร</button>
-        </form>
+    <!-- ภาพรวมระบบ (รอง) -->
+    <h2 class="section-title" th:unless="${#lists.isEmpty(cards)}">ภาพรวม <a class="more" th:href="@{/stats}">ดูสถิติทั้งหมด →</a></h2>
+    <div class="grid-4" style="margin-bottom:22px" th:unless="${#lists.isEmpty(cards)}">
+        <div class="tile"><div class="ico">👧</div><div><b th:text="${stats.children}">0</b><span>เด็กที่ดูแล</span></div></div>
+        <div class="tile blue"><div class="ico">🍱</div><div><b th:text="${stats.mealsLast7}">0</b><span>มื้อที่บันทึก (7 วัน)</span></div></div>
+        <div class="tile red"><div class="ico">🚦</div><div><b th:text="${stats.redPercentLast7 != null} ? ${stats.redPercentLast7} + '%' : '–'">–</b><span>มื้อไฟแดง (7 วัน)</span></div></div>
+        <div class="tile yellow"><div class="ico">🤖</div><div><b th:text="${stats.aiAutoPercent} + '%'">0%</b><span>AI จำแนกได้เองไม่ต้องยืนยัน</span></div></div>
+    </div>
 
-        <p class="note">
-            ผลโภชนาการเป็นค่าประมาณ ขึ้นอยู่กับอาหารและปริมาณที่ตรวจพบ
-        </p>
-    </main>
-
-    <script>
-        const fileInput = document.getElementById("foodImage");
-        const preview = document.getElementById("preview");
-
-        fileInput.addEventListener("change", function () {
-            const file = this.files[0];
-
-            if (file && file.type.startsWith("image/")) {
-                preview.src = URL.createObjectURL(file);
-                preview.style.display = "block";
-            } else {
-                preview.removeAttribute("src");
-                preview.style.display = "none";
-            }
-        });
-    </script>
+    <details class="card howto" th:unless="${#lists.isEmpty(cards)}">
+        <summary>วิธีใช้งาน</summary>
+        <ol class="how">
+            <li><b>บันทึกมื้อ</b><span>กด "📷 บันทึกมื้อ" ที่การ์ดเด็ก ถ่ายหรือเลือกภาพอาหาร</span></li>
+            <li><b>ยืนยันเมนูและปริมาณ</b><span>ถ้า AI ไม่มั่นใจ เลือกเมนูให้ถูกต้อง แล้วเลือกว่าเด็กกินกี่ส่วน</span></li>
+            <li><b>ดูผล</b><span>ไฟเขียว/เหลือง/แดง พร้อมคำแนะนำ และดูสรุปรายสัปดาห์ได้</span></li>
+        </ol>
+    </details>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
 </body>
 </html>

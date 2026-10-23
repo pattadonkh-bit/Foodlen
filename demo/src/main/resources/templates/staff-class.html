@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('ภาพรวมห้อง')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('staff')}"></header>
+<main class="container">
+
+    <div class="card-head" style="margin-bottom:14px">
+        <div>
+            <h1 style="margin:0">ภาพรวมเด็กทั้งหมด</h1>
+            <div class="muted">สำหรับครู/นักโภชนาการ · เรียงจากเด็กที่ควรดูแลก่อน · ข้อมูลมื้ออาหารย้อนหลัง 7 วัน</div>
+        </div>
+        <a class="btn secondary" th:href="@{/staff/class.csv}">⬇️ ส่งออก CSV</a>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:18px">
+        <div class="tile"><div class="ico">👧</div><div><b th:text="${co.total}">0</b><span>เด็กทั้งหมด</span></div></div>
+        <div class="tile red"><div class="ico">🚨</div><div><b th:text="${co.high}">0</b><span>เสี่ยงสูง</span></div></div>
+        <div class="tile yellow"><div class="ico">👀</div><div><b th:text="${co.medium}">0</b><span>เฝ้าระวัง</span></div></div>
+        <div class="tile blue"><div class="ico">📝</div><div><b th:text="${co.notLogged}">0</b><span>ไม่ได้บันทึกมื้อ ≥ 3 วัน</span></div></div>
+    </div>
+
+    <section class="card">
+        <div class="filters">
+            <div>
+                <label for="fSearch">ค้นหาชื่อ</label>
+                <input type="text" id="fSearch" placeholder="พิมพ์ชื่อ" autocomplete="off">
+            </div>
+            <div>
+                <label for="fClass">ชั้น/ห้อง</label>
+                <select id="fClass">
+                    <option value="">ทั้งหมด</option>
+                    <option th:each="c : ${co.classrooms}" th:value="${c}" th:text="${c}"></option>
+                </select>
+            </div>
+            <div>
+                <label for="fRisk">ระดับความเสี่ยง</label>
+                <select id="fRisk">
+                    <option value="">ทั้งหมด</option>
+                    <option value="HIGH">เสี่ยงสูง</option>
+                    <option value="MEDIUM">เฝ้าระวัง</option>
+                    <option value="LOW">ปกติ</option>
+                    <option value="UNKNOWN">ประเมินไม่ได้</option>
+                </select>
+            </div>
+            <div>
+                <label for="fStatus">ภาวะโภชนาการ</label>
+                <select id="fStatus">
+                    <option value="">ทั้งหมด</option>
+                    <option value="SEVERE_THINNESS">ผอมมาก</option>
+                    <option value="THINNESS">ผอม</option>
+                    <option value="NORMAL">สมส่วน</option>
+                    <option value="OVERWEIGHT">น้ำหนักเกิน/ท้วม</option>
+                    <option value="OBESITY">อ้วน</option>
+                    <option value="NONE">ประเมินไม่ได้</option>
+                </select>
+            </div>
+            <label class="choice filter-check">
+                <input type="checkbox" id="fNotLogged"> ไม่ได้บันทึกมื้อ ≥ 3 วัน
+            </label>
+        </div>
+        <div class="row spread" style="margin:6px 0 10px">
+            <span class="muted" id="fCount"></span>
+            <button class="btn secondary small" type="button" id="fReset">ล้างตัวกรอง</button>
+        </div>
+
+        <p class="muted" th:if="${#lists.isEmpty(co.rows)}">ยังไม่มีเด็กในระบบ</p>
+        <div class="scroll" th:unless="${#lists.isEmpty(co.rows)}">
+            <table class="wide" id="classTable">
+                <thead>
+                <tr>
+                    <th class="sortable" data-sort="name" data-type="text">เด็ก</th>
+                    <th class="sortable" data-sort="class" data-type="text">ชั้น/ห้อง</th>
+                    <th class="sortable" data-sort="status" data-type="num">ภาวะโภชนาการ</th>
+                    <th class="sortable num" data-sort="z" data-type="num">z-score</th>
+                    <th class="sortable num" data-sort="meals" data-type="num">มื้อ 7 วัน</th>
+                    <th class="sortable num" data-sort="red" data-type="num">ไฟแดง</th>
+                    <th class="sortable" data-sort="days" data-type="num">บันทึกล่าสุด</th>
+                    <th class="sortable" data-sort="risk" data-type="num">ความเสี่ยง</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="r : ${co.rows}"
+                    th:attr="data-name=${r.ov.child.name},
+                             data-class=${r.ov.child.classroom != null ? r.ov.child.classroom : ''},
+                             data-status-code=${r.ov.status != null ? r.ov.status.status.name() : 'NONE'},
+                             data-status=${r.ov.status != null ? r.ov.status.status.ordinal() : 9},
+                             data-z=${r.ov.status != null ? r.ov.status.z : 0},
+                             data-meals=${r.meals7},
+                             data-red=${r.redPct != null ? r.redPct : -1},
+                             data-days=${r.daysSinceMeal != null ? r.daysSinceMeal : 999},
+                             data-risk=${r.risk.rank},
+                             data-risk-code=${r.risk.name()},
+                             data-notlogged=${r.notLogged}">
+                    <td>
+                        <a class="who" th:href="@{/children/{id}(id=${r.ov.child.id})}">
+                            <span class="avatar sm" th:classappend="${r.ov.avatarClass}" th:text="${r.ov.initial}">ก</span>
+                            <span>
+                                <b th:text="${r.ov.child.name}">ชื่อ</b><br>
+                                <span class="muted" th:text="${r.ov.child.sex.label + ' · ' + r.ov.ageText}"></span>
+                            </span>
+                        </a>
+                    </td>
+                    <td th:text="${r.ov.child.classroom != null ? r.ov.child.classroom : '–'}"></td>
+                    <td>
+                        <span class="badge" th:if="${r.ov.status != null}" th:classappend="${r.ov.status.status.cssClass}"
+                              th:text="${r.ov.status.status.label}"></span>
+                        <span class="muted" th:if="${r.ov.status == null}">ประเมินไม่ได้</span>
+                        <div class="muted" th:if="${r.ov.status != null}"
+                             th:text="'BMI ' + ${#numbers.formatDecimal(r.ov.status.bmi,1,1)}"></div>
+                    </td>
+                    <td class="num" th:text="${r.ov.status != null} ? ${#numbers.formatDecimal(r.ov.status.z,1,2)} : '–'"></td>
+                    <td class="num" th:text="${r.meals7}"></td>
+                    <td class="num" th:text="${r.redPct != null} ? ${r.red7} + ' (' + ${r.redPct} + '%)' : '–'"></td>
+                    <td>
+                        <span th:if="${r.lastMealDate != null}"
+                              th:text="${r.daysSinceMeal == 0 ? 'วันนี้' : r.daysSinceMeal + ' วันที่แล้ว'}"></span>
+                        <span class="muted" th:if="${r.lastMealDate == null}">ไม่มีใน 30 วัน</span>
+                        <span class="badge warn plain" th:if="${r.notLogged}" style="margin-left:4px">ขาดบันทึก</span>
+                    </td>
+                    <td>
+                        <span class="badge" th:classappend="${r.risk.cssClass}" th:text="${r.risk.label}"></span>
+                        <div class="reasons" th:if="${!r.reasons.isEmpty()}">
+                            <span th:each="x : ${r.reasons}" th:text="${x}"></span>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="muted" style="margin:12px 0 0">
+            เกณฑ์ความเสี่ยงเป็นค่าเริ่มต้นที่ผู้พัฒนากำหนด (ยังไม่ผ่านการตรวจสอบโดยผู้เชี่ยวชาญ):
+            <b>เสี่ยงสูง</b> = ผอมมาก/อ้วน หรือไฟแดง ≥ 50% ของมื้อใน 7 วัน ·
+            <b>เฝ้าระวัง</b> = ผอม/น้ำหนักเกิน หรือไฟแดง ≥ 30% (ต้องมีอย่างน้อย 3 มื้อ) ·
+            ภาวะโภชนาการตาม BMI-for-age WHO 2007
+        </p>
+    </section>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+<script>
+    (function () {
+        var table = document.getElementById("classTable");
+        if (!table) { return; }
+        var tbody = table.tBodies[0];
+        var rows = Array.prototype.slice.call(tbody.rows);
+        var f = {
+            q: document.getElementById("fSearch"), cls: document.getElementById("fClass"),
+            risk: document.getElementById("fRisk"), status: document.getElementById("fStatus"),
+            nl: document.getElementById("fNotLogged")
+        };
+        var count = document.getElementById("fCount");
+
+        function apply() {
+            var q = f.q.value.trim().toLowerCase(), shown = 0;
+            rows.forEach(function (r) {
+                var d = r.dataset;
+                var ok = (!q || d.name.toLowerCase().indexOf(q) >= 0)
+                    && (!f.cls.value || d["class"] === f.cls.value)
+                    && (!f.risk.value || d.riskCode === f.risk.value)
+                    && (!f.status.value || d.statusCode === f.status.value)
+                    && (!f.nl.checked || d.notlogged === "true");
+                r.hidden = !ok;
+                if (ok) { shown++; }
+            });
+            count.textContent = "แสดง " + shown + " จาก " + rows.length + " คน";
+        }
+        Object.keys(f).forEach(function (k) {
+            f[k].addEventListener(k === "q" ? "input" : "change", apply);
+        });
+        document.getElementById("fReset").addEventListener("click", function () {
+            f.q.value = ""; f.cls.value = ""; f.risk.value = ""; f.status.value = ""; f.nl.checked = false; apply();
+        });
+
+        var current = null, asc = true;
+        Array.prototype.forEach.call(table.tHead.rows[0].cells, function (th) {
+            th.addEventListener("click", function () {
+                var key = th.dataset.sort, num = th.dataset.type === "num";
+                asc = current === th ? !asc : (key !== "risk" && key !== "red" && key !== "z" ? true : false);
+                current = th;
+                Array.prototype.forEach.call(th.parentNode.cells, function (c) { c.classList.remove("asc", "desc"); });
+                th.classList.add(asc ? "asc" : "desc");
+                rows.sort(function (a, b) {
+                    var x = a.dataset[key], y = b.dataset[key], r;
+                    if (num) { r = parseFloat(x) - parseFloat(y); }
+                    else { r = x.localeCompare(y, "th"); }
+                    return asc ? r : -r;
+                });
+                rows.forEach(function (r) { tbody.appendChild(r); });
+            });
+        });
+        apply();
+    })();
+</script>
+</body>
+</html>

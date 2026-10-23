@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('แก้ไขข้อมูลการวัด')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('home')}"></header>
+<main class="container narrow">
+    <h1>แก้ไขน้ำหนักและส่วนสูง</h1>
+    <p class="subtitle">ของ <b th:text="${ov.child.name}"></b></p>
+
+    <div class="msg error" th:if="${error}" th:text="${error}"></div>
+
+    <form class="card" th:action="@{/children/{id}/measurements/{mid}/edit(id=${ov.child.id},mid=${m.id})}" method="post">
+        <label for="measuredOn">วันที่วัด</label>
+        <input type="date" id="measuredOn" name="measuredOn" required th:max="${today}"
+               th:value="${param.measuredOn != null ? param.measuredOn[0] : m.measuredOn}">
+        <div class="grid-2" style="gap:12px">
+            <div>
+                <label for="weightKg">น้ำหนัก (กก.)</label>
+                <input type="number" id="weightKg" name="weightKg" step="0.1" min="5" max="150" required
+                       th:value="${param.weightKg != null ? param.weightKg[0] : m.weightKg}">
+            </div>
+            <div>
+                <label for="heightCm">ส่วนสูง (ซม.)</label>
+                <input type="number" id="heightCm" name="heightCm" step="0.1" min="80" max="220" required
+                       th:value="${param.heightCm != null ? param.heightCm[0] : m.heightCm}">
+            </div>
+        </div>
+        <div class="row" style="margin-top:18px">
+            <button class="btn" type="submit">บันทึกการแก้ไข</button>
+            <a class="btn secondary" th:href="@{/children/{id}(id=${ov.child.id})}">ยกเลิก</a>
+        </div>
+    </form>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,11 @@
+target/
+data/
+.git/
+.github/
+.idea/
+.vscode/
+*.md
+.env
+.env.*
+!.env.example
+yolo-service/

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('บันทึกมื้ออาหาร')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('home')}"></header>
+<main class="container narrow">
+    <nav class="crumbs">
+        <a th:href="@{/}">หน้าแรก</a><span class="sep">›</span>
+        <a th:href="@{/children/{id}(id=${ov.child.id})}" th:text="${ov.child.name}">เด็ก</a><span class="sep">›</span>
+        <b>บันทึกมื้ออาหาร</b>
+    </nav>
+    <ol th:replace="~{fragments :: steps(1)}"></ol>
+    <h1>📷 บันทึกมื้ออาหารของ <span th:text="${ov.child.name}"></span></h1>
+    <p class="subtitle">ถ่ายหรือเลือกภาพอาหาร ระบบจะจำแนกเมนูด้วย AI ถ้าไม่มั่นใจจะให้คุณยืนยันเมนูก่อน</p>
+
+    <div class="msg error" th:if="${error}" th:text="${error}"></div>
+
+    <form class="card" th:action="@{/children/{id}/meals/analyze(id=${ov.child.id})}" method="post" enctype="multipart/form-data">
+        <div class="dropzone">
+            <div style="font-size:42px">🍛</div>
+            <label for="image" style="margin-top:0">เลือกภาพอาหาร</label>
+            <input type="file" id="image" name="image" accept="image/*" capture="environment" required>
+            <img id="preview" class="preview" alt="ตัวอย่างภาพ" style="display:none">
+        </div>
+
+        <div class="grid-2" style="gap:14px">
+            <div>
+                <label for="mealType">มื้อ</label>
+                <select id="mealType" name="mealType">
+                    <option th:each="t : ${mealTypes}" th:value="${t.name()}" th:text="${t.label}"
+                            th:selected="${t.name() == 'LUNCH'}"></option>
+                </select>
+            </div>
+            <div>
+                <label for="eatenDate">วันที่กิน</label>
+                <input type="date" id="eatenDate" name="eatenDate" th:value="${today}" th:max="${today}">
+            </div>
+        </div>
+
+        <div class="row" style="margin-top:20px">
+            <button class="btn" type="submit">🔍 วิเคราะห์อาหาร</button>
+            <a class="btn secondary" th:href="@{/children/{id}/meals/manual(id=${ov.child.id})}">เลือกเมนูเอง</a>
+            <a class="btn secondary" th:href="@{/children/{id}(id=${ov.child.id})}">กลับ</a>
+        </div>
+        <p class="muted" style="margin-bottom:0">AI จำแนกได้ 101 เมนูอาหารไทย (นม เครื่องดื่ม ผลไม้ ขนม ใช้ “เลือกเมนูเอง”) · ระบบไม่เก็บไฟล์ภาพ</p>
+    </form>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+<script>
+    const input = document.getElementById("image");
+    const preview = document.getElementById("preview");
+    input.addEventListener("change", function () {
+        const f = this.files[0];
+        if (f && f.type.startsWith("image/")) {
+            preview.src = URL.createObjectURL(f);
+            preview.style.display = "block";
+        } else {
+            preview.style.display = "none";
+        }
+    });
+</script>
+</body>
+</html>

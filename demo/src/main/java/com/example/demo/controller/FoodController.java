@@ -1,56 +1,61 @@
-
 package com.example.demo.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo.advice.EnergyTargetService;
+import com.example.demo.advice.RecommendationService;
+import com.example.demo.menu.MenuCatalog;
+import com.example.demo.service.ChartDataService;
+import com.example.demo.service.DashboardService;
 import com.example.demo.service.YoloService;
 
+/** หน้าแรก (รายชื่อเด็ก) และหน้าข้อมูลอ้างอิงของระบบ (กฎ เมนู พลังงานอ้างอิง) */
 @Controller
 public class FoodController {
 
-    private final YoloService yoloService;
+    private final DashboardService dashboard;
+    private final YoloService ai;
+    private final RecommendationService recommendations;
+    private final EnergyTargetService energyTargets;
+    private final MenuCatalog menus;
+    private final ChartDataService charts;
+    private final double threshold;
 
-    public FoodController(YoloService yoloService) {
-        this.yoloService = yoloService;
+    public FoodController(DashboardService dashboard, YoloService ai, RecommendationService recommendations,
+                          EnergyTargetService energyTargets, MenuCatalog menus, ChartDataService charts,
+                          @Value("${foodlen.confidence-threshold:0.80}") double threshold) {
+        this.dashboard = dashboard;
+        this.ai = ai;
+        this.recommendations = recommendations;
+        this.energyTargets = energyTargets;
+        this.menus = menus;
+        this.charts = charts;
+        this.threshold = threshold;
     }
 
     @GetMapping("/")
-    public String home() {
+    public String home(Model model) {
+        model.addAttribute("cards", dashboard.cards());
+        model.addAttribute("aiUp", ai.isUp());
+        model.addAttribute("stats", charts.stats());
         return "index";
     }
 
-    @PostMapping("/analyze")
-    public String analyze(
-            @RequestParam("image") MultipartFile image,
-            Model model) {
+    @GetMapping("/stats")
+    public String stats(Model model) {
+        model.addAttribute("stats", charts.stats());
+        return "stats";
+    }
 
-        if (image.isEmpty()) {
-            model.addAttribute("error", "กรุณาเลือกรูปอาหารก่อน");
-            return "index";
-        }
-
-        try {
-            String result = yoloService.detect(image);
-
-            model.addAttribute("fileName", image.getOriginalFilename());
-            model.addAttribute("result", result);
-            model.addAttribute("message",
-                    "YOLO ตรวจจับวัตถุจากรูปภาพเรียบร้อยแล้ว");
-
-            return "result";
-
-     } catch (Exception e) {
-    e.printStackTrace();
-
-    model.addAttribute("error",
-            "ไม่สามารถวิเคราะห์รูปภาพได้: " + e.getMessage());
-
-    return "index";
-}
+    @GetMapping("/rules")
+    public String rules(Model model) {
+        model.addAttribute("rules", recommendations.rules());
+        model.addAttribute("targets", energyTargets.targets());
+        model.addAttribute("menus", menus.all());
+        model.addAttribute("threshold", threshold);
+        return "rules";
     }
 }

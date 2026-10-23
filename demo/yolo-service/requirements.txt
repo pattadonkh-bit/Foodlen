@@ -1,7 +1,9 @@
 flask
-ultralytics
-transformers
-torch
 pillow
+numpy
+onnxruntime
 
-** runwith python -m pip install -r requirements.txt**
+# run with: python -m pip install -r requirements.txt   (ใช้ models/resnet50_thfood101.onnx ไม่ต้องมี PyTorch)
+# ถ้าไม่มีไฟล์ .onnx บริการจะใช้ backend PyTorch (รองรับ GPU) ต้องติดตั้งเพิ่ม: torch torchvision
+#   (ถ้าใช้ GPU ให้ติดตั้งชุดที่รองรับ CUDA ตามคำแนะนำของ pytorch.org) แล้วสร้างไฟล์ .onnx ได้ด้วย: python tools/export_onnx.py
+# หมายเหตุ: test_food.py เป็นสคริปต์เดิมที่ใช้ transformers (nateraw/food) ไม่ได้ใช้ในระบบนี้แล้ว

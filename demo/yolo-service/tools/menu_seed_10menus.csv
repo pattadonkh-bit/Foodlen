@@ -1,0 +1,11 @@
+code,name_th,name_en,serving_th,energy_kcal,protein_g,fat_g,carb_g,sugar_g,tags,food_groups,source,status
+FriedChicken,ไก่ทอด,Fried chicken,1 น่อง,345,,,,,fried,protein,hdmall.co.th ตารางแคลอรี่อาหาร (อ้างฐานข้อมูลสถาบันโภชนาการ มหิดล),provisional
+GaengKeawWan,แกงเขียวหวานไก่,Green curry (chicken),1 ถ้วย (ไม่รวมข้าว),240,,,,,,protein;vegetable,hdmall.co.th ตารางแคลอรี่อาหาร (อ้างฐานข้อมูลสถาบันโภชนาการ มหิดล),provisional
+KaoManGai,ข้าวมันไก่,Chicken rice,1 จาน,596,,,,,,starch;protein,hdmall.co.th ตารางแคลอรี่อาหาร (อ้างฐานข้อมูลสถาบันโภชนาการ มหิดล),provisional
+KhaoNiewMaMuang,ข้าวเหนียวมะม่วง,Mango sticky rice,1 จาน,,,,,,sweet,starch;fruit,ยังไม่มีค่าที่ตรวจสอบได้ (กรอกจาก Thai FCD),no_data
+KuayTeowReua,ก๋วยเตี๋ยวเรือ,Boat noodles,1 ชาม (น้ำตก),180,,,,,,starch;protein,hdmall.co.th ตารางแคลอรี่อาหาร (อ้างฐานข้อมูลสถาบันโภชนาการ มหิดล),provisional
+PadThai,ผัดไทย,Pad Thai,1 จาน (ใส่ไข่),577,,,,,,starch;protein,hdmall.co.th ตารางแคลอรี่อาหาร (อ้างฐานข้อมูลสถาบันโภชนาการ มหิดล),provisional
+PhatKaphrao,ผัดกะเพราหมูราดข้าว,Basil stir-fry with rice,1 จาน,580,,,,,,starch;protein,hdmall.co.th ตารางแคลอรี่อาหาร (อ้างฐานข้อมูลสถาบันโภชนาการ มหิดล),provisional
+Somtam,ส้มตำ,Papaya salad,1 จาน,,,,,,,vegetable,แหล่งข้อมูลให้ค่าต่างกันตามสูตร (35-118 kcal/จาน) จึงยังไม่ใส่ค่า (กรอกจาก Thai FCD),no_data
+StewedPorkLeg,ข้าวขาหมู,Stewed pork leg rice,1 จาน,690,,,,,,starch;protein,hdmall.co.th ตารางแคลอรี่อาหาร (อ้างฐานข้อมูลสถาบันโภชนาการ มหิดล),provisional
+TomYumGoong,ต้มยำกุ้ง,Tom yum goong,1 ถ้วย,65,,,,,,protein;vegetable,hdmall.co.th ตารางแคลอรี่อาหาร (อ้างฐานข้อมูลสถาบันโภชนาการ มหิดล),provisional

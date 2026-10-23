@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('สรุปรายสัปดาห์')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('home')}"></header>
+<main class="container">
+    <div class="card-head" style="margin-bottom:16px">
+        <div class="kid-head" style="margin:0">
+            <div class="avatar" th:classappend="${s.overview.avatarClass}" th:text="${s.overview.initial}">ก</div>
+            <div>
+                <h1 style="margin:0">สรุปรายสัปดาห์ · <span th:text="${s.overview.child.name}"></span></h1>
+                <div class="muted" th:text="${#temporals.format(s.start,'d/M/yyyy') + ' – ' + #temporals.format(s.end,'d/M/yyyy')}"></div>
+            </div>
+        </div>
+        <div class="row">
+            <a class="btn secondary small" th:href="@{/children/{id}/weekly(id=${s.overview.child.id},end=${prevEnd})}">← สัปดาห์ก่อน</a>
+            <a class="btn secondary small" th:if="${hasNext}" th:href="@{/children/{id}/weekly(id=${s.overview.child.id},end=${nextEnd})}">สัปดาห์ถัดไป →</a>
+            <a class="btn secondary small" th:href="@{/children/{id}(id=${s.overview.child.id})}">กลับหน้าเด็ก</a>
+        </div>
+    </div>
+
+    <div class="msg info" th:if="${s.totalMeals == 0}">ยังไม่มีมื้ออาหารที่บันทึกในสัปดาห์นี้</div>
+
+    <div class="grid-4" style="margin-bottom:18px" th:if="${s.totalMeals > 0}">
+        <div class="tile"><div class="ico">🍱</div><div><b th:text="${s.totalMeals}">0</b><span>มื้อที่บันทึก</span></div></div>
+        <div class="tile blue"><div class="ico">📅</div><div><b th:text="${s.daysLogged} + '/7'">0</b><span>วันที่มีบันทึก</span></div></div>
+        <div class="tile yellow"><div class="ico">🔥</div><div>
+            <b th:text="${s.avgKcalPerLoggedDay != null} ? ${#numbers.formatDecimal(s.avgKcalPerLoggedDay,1,0)} : '–'">0</b>
+            <span>kcal เฉลี่ยต่อวันที่บันทึก</span></div></div>
+        <div class="tile"><div class="ico">🎯</div><div>
+            <b th:text="${s.avgPercentOfTarget != null} ? ${#numbers.formatDecimal(s.avgPercentOfTarget*100,1,0)} + '%' : '–'">0</b>
+            <span th:text="${s.overview.dailyKcal != null} ? 'ของพลังงานอ้างอิง (' + ${s.overview.dailyKcal} + ' kcal)' : 'ไม่มีพลังงานอ้างอิง'"></span></div></div>
+    </div>
+
+    <div class="msg warn" th:if="${s.mealsWithoutEnergy > 0}"
+         th:text="'มี ' + ${s.mealsWithoutEnergy} + ' มื้อที่เมนูยังไม่มีข้อมูลพลังงาน จึงไม่รวมในผลรวม พลังงานจริงอาจสูงกว่าที่แสดง'"></div>
+
+    <section class="card">
+        <h2>พลังงานรายวัน เทียบกับพลังงานอ้างอิง</h2>
+        <div class="chart-box">
+            <canvas data-chart="weeklyKcal" th:attr="data-url=@{/api/children/{id}/weekly(id=${s.overview.child.id},end=${s.end})}"></canvas>
+        </div>
+    </section>
+
+    <div class="grid-2">
+        <section class="card">
+            <h2>ไฟจราจรรายวัน</h2>
+            <div class="chart-box short">
+                <canvas data-chart="weeklyLevels" th:attr="data-url=@{/api/children/{id}/weekly(id=${s.overview.child.id},end=${s.end})}"></canvas>
+            </div>
+        </section>
+        <section class="card">
+            <h2>สัดส่วนไฟจราจรทั้งสัปดาห์</h2>
+            <div class="chart-box short">
+                <canvas data-chart="weeklyDonut" th:attr="data-url=@{/api/children/{id}/weekly(id=${s.overview.child.id},end=${s.end})}"></canvas>
+            </div>
+        </section>
+    </div>
+
+    <section class="card" th:if="${s.totalMeals > 0}">
+        <h2>อาหาร 5 หมู่ (จากเมนูที่บันทึก)</h2>
+        <div class="groups">
+            <span class="group-chip" th:each="g : ${s.groups}" th:classappend="${g.present} ? 'on'"
+                  th:text="${(g.present ? '✓ ' : '✗ ') + g.label}"></span>
+        </div>
+        <p class="muted" style="margin:12px 0 0">
+            หมู่ที่ขีด ✗ คือยังไม่พบในเมนูที่บันทึกสัปดาห์นี้ การจัดกลุ่มอาหารของแต่ละเมนูเป็นค่าเบื้องต้น (ดูที่หน้ากฎและข้อมูลอ้างอิง)
+            และอาจไม่นับผัก/นมที่กินแยกจากเมนูที่บันทึก
+        </p>
+    </section>
+
+    <section class="card">
+        <h2>ตารางรายวัน</h2>
+        <p class="muted" th:if="${s.mealsWithoutEnergy > 0}">* = วันที่มีบางมื้อที่เมนูยังไม่มีข้อมูลพลังงาน (ไม่รวมในตัวเลข)</p>
+        <div class="scroll">
+            <table>
+                <thead><tr><th>วันที่</th><th class="num">มื้อ</th><th class="num">kcal</th><th class="num">% ของเป้า</th><th>ไฟจราจร</th></tr></thead>
+                <tbody>
+                <tr th:each="d : ${s.days}">
+                    <td th:text="${#temporals.format(d.date,'EEE d/M')}"></td>
+                    <td class="num" th:text="${d.meals}"></td>
+                    <td class="num" th:text="${d.meals > d.mealsWithoutEnergy} ? ${#numbers.formatDecimal(d.kcal,1,0)} + (${d.mealsWithoutEnergy > 0} ? '*' : '') : '–'"></td>
+                    <td class="num" th:text="${d.meals > d.mealsWithoutEnergy and s.overview.dailyKcal != null} ? ${#numbers.formatDecimal(d.kcal*100.0/s.overview.dailyKcal,1,0)} + '%' : '–'"></td>
+                    <td>
+                        <span th:if="${d.red > 0}"><span class="light red"></span><span th:text="${d.red}"></span> </span>
+                        <span th:if="${d.yellow > 0}"><span class="light yellow"></span><span th:text="${d.yellow}"></span> </span>
+                        <span th:if="${d.green > 0}"><span class="light green"></span><span th:text="${d.green}"></span> </span>
+                        <span th:if="${d.unknown > 0}"><span class="light grey"></span><span th:text="${d.unknown}"></span></span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+<th:block th:replace="~{fragments :: chartScripts}"></th:block>
+</body>
+</html>

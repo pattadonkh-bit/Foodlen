@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+tools/
+test_food.py
+yolov8n.pt
+models/*.pt
+models/classes.json

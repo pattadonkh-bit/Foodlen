@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('แก้ไขข้อมูลเด็ก')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('home')}"></header>
+<main class="container narrow">
+    <h1>แก้ไขข้อมูลเด็ก</h1>
+    <p class="subtitle">ถ้าเปลี่ยนวันเกิดหรือเพศ ระบบจะตรวจการวัดน้ำหนัก/ส่วนสูงเดิมทุกครั้งว่ายังอยู่ในช่วงอายุที่ประเมินได้</p>
+
+    <div class="msg error" th:if="${error}" th:text="${error}"></div>
+
+    <form class="card" th:action="@{/children/{id}/edit(id=${child.id})}" method="post">
+        <label for="name">ชื่อ (ใช้ชื่อเล่นหรือรหัสแทนชื่อจริงได้)</label>
+        <input type="text" id="name" name="name" maxlength="100" required th:value="${form.name}">
+
+        <label>เพศ</label>
+        <div class="inline">
+            <label><input type="radio" name="sex" value="M" required th:checked="${form.sex != null and form.sex.name() == 'M'}"> ชาย</label>
+            <label><input type="radio" name="sex" value="F" th:checked="${form.sex != null and form.sex.name() == 'F'}"> หญิง</label>
+        </div>
+
+        <label for="birthDate">วันเกิด</label>
+        <input type="date" id="birthDate" name="birthDate" required th:value="${form.birthDate}">
+
+        <label for="classroom">ชั้น/ห้องเรียน <span class="muted" style="font-weight:400">(ไม่บังคับ)</span></label>
+        <input type="text" id="classroom" name="classroom" maxlength="50" th:value="${form.classroom}">
+
+        <div class="row" style="margin-top:18px">
+            <button class="btn" type="submit">บันทึกการแก้ไข</button>
+            <a class="btn secondary" th:href="@{/children/{id}(id=${child.id})}">ยกเลิก</a>
+        </div>
+    </form>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

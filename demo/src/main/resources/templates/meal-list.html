@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('ประวัติมื้ออาหาร')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('home')}"></header>
+<main class="container">
+    <div class="card-head" style="margin-bottom:12px">
+        <div>
+            <h1 style="margin:0">ประวัติมื้ออาหาร</h1>
+            <div class="muted">ของ <a th:href="@{/children/{id}(id=${ov.child.id})}" th:text="${ov.child.name}"></a>
+                · แสดงล่าสุดไม่เกิน 200 มื้อ</div>
+        </div>
+        <div class="row">
+            <a class="btn" th:href="@{/children/{id}/meals/new(id=${ov.child.id})}">📷 บันทึกมื้ออาหาร</a>
+            <a class="btn secondary" th:href="@{/children/{id}(id=${ov.child.id})}">กลับหน้าเด็ก</a>
+        </div>
+    </div>
+
+    <div class="msg ok" th:if="${message}" th:text="${message}"></div>
+
+    <section class="card">
+        <p class="muted" th:if="${#lists.isEmpty(meals)}">ยังไม่มีมื้ออาหารที่บันทึก</p>
+        <div class="scroll" th:unless="${#lists.isEmpty(meals)}">
+            <table>
+                <thead><tr><th>วันที่</th><th>มื้อ</th><th>เมนู</th><th class="num">สัดส่วน</th><th class="num">kcal</th><th>ผล</th><th></th></tr></thead>
+                <tbody>
+                <tr th:each="m : ${meals}">
+                    <td th:text="${#temporals.format(m.eatenAt,'d/M/yyyy HH:mm')}"></td>
+                    <td th:text="${m.mealType.label}"></td>
+                    <td><a th:href="@{/children/{id}/meals/{mid}(id=${ov.child.id},mid=${m.id})}"
+                           th:text="${menuByCode[m.menuCode]?.nameTh ?: m.menuCode}"></a></td>
+                    <td class="num" th:text="${m.portion}"></td>
+                    <td class="num" th:text="${m.energyKcal != null} ? ${#numbers.formatDecimal(m.energyKcal,1,0)} : '–'"></td>
+                    <td><span class="light" th:classappend="${m.level.cssClass}"></span><span th:text="${m.level.label}"></span></td>
+                    <td class="actions">
+                        <a class="btn secondary small" th:href="@{/children/{id}/meals/{mid}/edit(id=${ov.child.id},mid=${m.id})}">แก้ไข</a>
+                        <form th:action="@{/children/{id}/meals/{mid}/delete(id=${ov.child.id},mid=${m.id})}" method="post"
+                              onsubmit="return confirm('ลบมื้อนี้?');">
+                            <button class="btn danger small" type="submit">ลบ</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>
