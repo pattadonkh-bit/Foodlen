@@ -94,33 +94,36 @@ $env:FOODLEN_BOOTSTRAP_STAFF_PASSWORD = "รหัสผ่านอย่าง
 
 ตั้งค่าใน `application.properties`: `foodlen.ai-service-url`, `foodlen.confidence-threshold`
 
-## Deploy บน Hugging Face Spaces + Neon (ฟรี)
+## Deploy ฟรีบน Render + Neon (Postgres)
 
-รันเว็บ (Java) และบริการ AI (ONNX บน CPU) ใน **container เดียว** บน Space แบบ Docker (CPU Basic ฟรี 2 vCPU / 16 GB RAM) บริการ AI ฟังที่ `127.0.0.1` ภายใน container
-จึงไม่เปิดสู่ภายนอกและไม่ต้องใช้รหัสลับ ส่วน **ฐานข้อมูลใช้ Neon Postgres** เพราะดิสก์ของ Space ไม่ถาวร ไฟล์ที่ใช้อยู่ที่ `../huggingface/` (`Dockerfile`, `start.sh`, `README.md`)
+ใช้งานจริงอยู่ที่ <https://foodlen-web.onrender.com> โครงสร้าง: **เว็บ** (`foodlen-web`, Docker จาก `demo/Dockerfile`) + **บริการ AI** (`foodlen-ai`, Docker จาก `demo/yolo-service/Dockerfile`, ONNX บน CPU)
+ทั้งสองเป็น Render web service แพ็กเกจ **free** + **ฐานข้อมูล** Neon Postgres แพ็กเกจ free ตั้งค่าไว้ใน `../render.yaml` (รากของ repo) Render เป็นผู้ build Docker ไม่ต้องลง Docker ในเครื่อง
 
 **โมเดล ONNX**: บริการ AI ใช้ `yolo-service/models/resnet50_thfood101.onnx` (90 MB) แปลงจาก `.pt` ด้วย `python tools/export_onnx.py` ผลตรงกับ PyTorch
-(ค่า logits ต่างกันไม่เกิน 3×10⁻⁶; ทดสอบ 10 ภาพจริง อันดับ 1 ตรงกันทั้งหมด) ใช้ RAM ราว 160–270 MB
+(ค่า logits ต่างกันไม่เกิน 3×10⁻⁶; ทดสอบ 10 ภาพจริง อันดับ 1 ตรงกันทั้งหมด) ใช้ RAM ราว 160–270 MB จึงอยู่ในแพ็กเกจฟรี 512 MB ได้
 
-1. **Neon**: สร้างโปรเจกต์ Postgres แล้วเก็บค่าจากหน้า Connect (เลือก host ที่มี `-pooler`)
-   - `SPRING_DATASOURCE_URL` = `jdbc:postgresql://<host>/<database>?sslmode=require` (ต้องขึ้นต้น `jdbc:postgresql://` และไม่ใส่ `channel_binding`)
-   - `SPRING_DATASOURCE_USERNAME` และ `SPRING_DATASOURCE_PASSWORD` (แยกออกมา ไม่ใส่ใน URL)
-2. **GitHub**: push โค้ดขึ้น branch `ปิยพันธ์` ของ repo (ไม่แตะ `main`) repo ต้องเป็น **public** เพราะ Dockerfile ดาวน์โหลดโค้ดจาก
-   `codeload.github.com/<เจ้าของ>/<repo>/tar.gz/refs/heads/<ชื่อ branch ที่เข้ารหัส URL>` (ตอนนี้ใช้ branch ปิยพันธ์ ซึ่งเป็นภาษาไทยจึงเข้ารหัสเป็น %E0%B8%9B...) (แก้ชื่อ repo ใน `huggingface/Dockerfile` ถ้าต่างจาก `pattadonkh-bit/Foodlen`) ต้องรวมไฟล์ `.onnx` และ `classes_thfood101.json`
-3. **Hugging Face**: New Space > ตั้งชื่อ > SDK = **Docker** > Blank > ฮาร์ดแวร์ **CPU Basic (ฟรี)** แล้วใส่ไฟล์ 3 ไฟล์จาก `../huggingface/` ลงใน Space
-   (อัปโหลดผ่านหน้าเว็บ Files > Add file ได้ ไม่ต้องใช้ git)
-4. ใน Space > Settings > **Variables and secrets** เพิ่ม **Secrets**: `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`,
-   `FOODLEN_BOOTSTRAP_STAFF_USERNAME` (อีเมลครู), `FOODLEN_BOOTSTRAP_STAFF_PASSWORD` (อย่างน้อย 8 ตัว) แล้ว Space จะ build เอง (ครั้งแรกใช้เวลาหลายนาที)
-5. เปิดเว็บที่ **URL ตรงของ Space** `https://<ผู้ใช้>-<ชื่อ space>.hf.space` (ไม่ใช่หน้า huggingface.co/spaces/... ที่ฝังเป็น iframe เพราะคุกกี้ล็อกอินอาจถูกบล็อก)
-   ล็อกอินด้วยบัญชีครู แล้วให้ผู้ปกครองสมัครที่ `/register` ตารางสร้างให้อัตโนมัติ เริ่มว่าง ไม่มีข้อมูลสาธิต
+ขั้นตอน (ทำครั้งเดียว):
+1. **Neon**: สร้างโปรเจกต์ Postgres (แพ็กเกจ Free) แล้วเก็บค่าจากหน้า Connect
+   - `SPRING_DATASOURCE_URL` = `jdbc:postgresql://<host>/<database>?sslmode=require` (ขึ้นต้น `jdbc:postgresql://` ไม่ใช่ `postgresql://` และไม่ใส่ `channel_binding`)
+   - `SPRING_DATASOURCE_USERNAME` และ `SPRING_DATASOURCE_PASSWORD` (แยกกัน ไม่ใส่ใน URL คัดลอกเฉพาะรหัสผ่าน ระวังช่องว่างหน้าหลัง)
+2. **GitHub**: push โค้ดขึ้น repo (public) รวม `yolo-service/models/resnet50_thfood101.onnx` และ `classes_thfood101.json`
+3. **Render**: New > Blueprint > ใส่ URL ของ repo (ช่อง Public Git Repository) > เลือก branch ที่มี `render.yaml` > กรอกค่าที่ขึ้น "Enter value":
+   ค่า 3 อย่างจาก Neon, `FOODLEN_BOOTSTRAP_STAFF_USERNAME` (อีเมลครู), `FOODLEN_BOOTSTRAP_STAFF_PASSWORD` (อย่างน้อย 8 ตัว) และ
+   `FOODLEN_AI_SERVICE_URL` (URL สาธารณะของบริการ AI เช่น `https://foodlen-ai.onrender.com` ถ้าชื่อซ้ำ Render จะต่อท้ายตัวอักษร ต้องใส่ให้ตรงกับที่อยู่จริง)
+   แล้วกด Deploy Blueprint รหัสลับระหว่างเว็บกับ AI (`FOODLEN_AI_TOKEN`) Render สุ่มให้เอง
+4. เปิดเว็บ ล็อกอินด้วยบัญชีครู ให้ผู้ปกครองสมัครที่ `/register` ตารางในฐานข้อมูลสร้างอัตโนมัติ (`ddl-auto=update`) เริ่มว่าง ไม่มีข้อมูลสาธิต
+5. ถ้าเว็บไม่ขึ้น ดู Logs ของ `foodlen-web` บน Render (ค้นคำว่า `Caused by`) ปัญหาที่เคยเจอ: `password authentication failed` = รหัสผ่านฐานข้อมูลใน Environment ไม่ตรงกับ Neon
 
 ข้อควรรู้:
-- **หลับเมื่อว่าง**: Space ฟรีหลับเมื่อไม่มีคนใช้ระยะหนึ่ง (เอกสารไม่ระบุเวลา) ตื่นครั้งแรกต้องรอสักครู่ ก่อนพรีเซ็นต์ให้เปิดเว็บทิ้งไว้ก่อน Neon ฟรีก็หยุดพักเมื่อว่างเช่นกัน (ตื่นใน ~1 วินาที)
-- **Space สาธารณะ**: ใครก็เห็นหน้าล็อกอินได้ (ข้อมูลเด็กต้องล็อกอินก่อน) Secrets ไม่ถูกเปิดเผย แต่ตั้ง Space เป็น Private ได้ในแพ็กเกจฟรีถ้าต้องการ
-- **ยังไม่ได้ทดสอบ** build Dockerfile นี้จริง (เครื่องพัฒนาไม่มี Docker) และยังไม่ได้ลองกับ Postgres รอบแรกอาจต้องแก้ตามข้อความใน Logs ของ Space
-- ก่อนใช้กับข้อมูลเด็กจริงยังต้องทบทวนด้านความปลอดภัยและ PDPA (เซิร์ฟเวอร์ Hugging Face และ Neon อยู่ต่างประเทศ) และ repo นี้เป็น public
-- โมเดลฝึกจากชุดข้อมูล THFOOD-100 (อนุญาตเฉพาะงานวิจัย/การศึกษาที่ไม่ใช่เชิงพาณิชย์) ใช้เพื่องานโครงงานเท่านั้น
-- ทางเลือกอื่น: `../render.yaml` ตั้งค่า Render แบบฟรีไว้ (เว็บและ AI แยก service หลับหลัง 15 นาที RAM 512 MB) ยังไม่ได้ใช้
+- **ฟรีจริง**: บัญชี Render เป็นแพ็กเกจ Hobby ไม่มีบัตรเครดิตผูกอยู่ (ถ้าโควตาหมด บริการจะถูกระงับแทนการคิดเงิน) โควตาต่อเดือน: ชั่วโมงใช้งานฟรี 750 ชม., bandwidth 5 GB, นาที build 500 นาที ห้ามกด Add Card หรือ Upgrade ถ้าไม่ได้ตั้งใจจ่าย
+- **หลับเมื่อว่าง**: ทั้งเว็บและ AI หลับหลังไม่มีคนเข้า 15 นาที ตื่นครั้งแรก ~50–60 วินาที (ครั้งแรกที่ส่งภาพอาจขึ้นว่า AI เชื่อมต่อไม่สำเร็จ ลองใหม่ใน 1 นาที หรือใช้ "เลือกเมนูเอง")
+  **ก่อนพรีเซ็นต์ให้เปิดเว็บและลองส่งภาพล่วงหน้าสัก 5 นาที** ฐานข้อมูล Neon ฟรีก็หยุดพักเมื่อว่างเช่นกัน (ตื่นใน ~1 วินาที)
+- **RAM 512 MB ของเว็บ (Java)** อาจตึง ตั้งค่า JVM ประหยัดไว้ใน `render.yaml` ถ้าเว็บล้มเพราะหน่วยความจำ ให้ดู Logs
+- **บริการ AI เป็น URL สาธารณะ** จึงป้องกันด้วยรหัสลับ (`X-Foodlen-Token`): คำขอ `/predict` ที่ไม่มีรหัสถูกปฏิเสธ (401) แต่ไม่มีการจำกัดอัตราการเรียก
+- **Blueprint ซิงก์อัตโนมัติ**: การแก้ `render.yaml` แล้ว push จะถูกซิงก์ไปที่ Render ทันที การเปลี่ยน *ชื่อ service* จะสร้าง service ใหม่ (ที่อยู่เว็บเปลี่ยน และต้องกรอกค่าลับใหม่) จึงไม่ควรเปลี่ยนชื่อโดยไม่ตั้งใจ
+- Render ให้ HTTPS อยู่แล้ว (ตั้งคุกกี้เป็น Secure) กล้องในเบราว์เซอร์จึงใช้ได้ — **ก่อนใช้กับข้อมูลเด็กจริงยังต้องทบทวนด้านความปลอดภัยและ PDPA** (เซิร์ฟเวอร์อยู่ในสิงคโปร์)
+- Hugging Face Docker Space ใช้ฟรีไม่ได้ (เป็นแพ็กเกจ Paid) ไฟล์ใน `../huggingface/` จึงไม่ได้ใช้ เก็บไว้เป็นตัวอย่าง
+- โมเดลฝึกจากชุดข้อมูล THFOOD-100 (อนุญาตเฉพาะงานวิจัย/การศึกษาที่ไม่ใช่เชิงพาณิชย์) ใช้เพื่องานโครงงานเท่านั้น และ repo นี้เป็น public
 
 ## สิ่งที่ยังเป็นค่าสาธิต (ต้องตรวจสอบก่อนใช้จริง)
 
