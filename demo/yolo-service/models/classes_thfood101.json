@@ -1,0 +1,721 @@
+{
+  "model": "resnet50",
+  "architecture": "resnet50",
+  "num_classes": 101,
+  "classes": [
+    "000_KhaoPhatAmerikan",
+    "001_KhaoNaKai",
+    "002_PoPiaThot",
+    "003_PhatSeeEw",
+    "004_KrapoPlaNamDang",
+    "005_SaiKrokIsan",
+    "006_LapKua",
+    "007_GaiPhatMedMamuangHimmapan",
+    "008_PhatPrikGang",
+    "009_PhatPrikThaiDam",
+    "010_PlaNuengSeeEw",
+    "011_PhatKhanaeng",
+    "012_KhaiKrata",
+    "013_KangChued",
+    "014_KuaitiaoRuea",
+    "015_KhaiTun",
+    "016_Roti",
+    "017_MuHong",
+    "018_NamPrikNum",
+    "019_PhatThaiHoKhai",
+    "020_KaengKhiaoWan",
+    "021_NamPrikOng",
+    "022_KhaoChae",
+    "023_KhaoKlukKapi",
+    "024_PlaMuekThot",
+    "025_KuaKling",
+    "026_PhatKana",
+    "027_PlaNuengManao",
+    "028_TomKha",
+    "029_YamWoonSen",
+    "030_PlaPhao",
+    "031_PlaMuekPhatNamDam",
+    "032_KiaoThot",
+    "033_KangThotKratiam",
+    "034_PhatPakBungFaiDaeng",
+    "035_TaoHooThot",
+    "036_YamHoi",
+    "037_SukiHaeng",
+    "038_KungThot",
+    "039_PoPiaSod",
+    "040_PhatPrikSod",
+    "041_KaengHangLe",
+    "042_KhanomCheeb",
+    "043_KuaitiaoKuaKai",
+    "044_PuNimThotKratiam",
+    "045_KalampliPhatNamPla",
+    "046_KhaoMokKai",
+    "047_PhatKapi",
+    "048_SaiUa",
+    "049_YamPlaDukFu",
+    "050_HoiThot",
+    "051_PhatKaprao",
+    "052_KhaoSuai",
+    "053_HoiCho",
+    "054_HoiPhatNamPrikPhao",
+    "055_KhaoKhaMu",
+    "056_KaengKuaHoi",
+    "057_KhaoTom",
+    "058_KhaoMuDaeng",
+    "059_Palo",
+    "060_KuaPrikKluea",
+    "061_RatNa",
+    "062_TaoJiaoLon",
+    "063_Yentafo",
+    "064_PlaMuekNguengManao",
+    "065_KaengPa",
+    "066_Chok",
+    "067_KhanomCheenNamNgiao",
+    "068_Kuaichap",
+    "069_KaengSom",
+    "070_HoiNangrom",
+    "071_KhanomCheen",
+    "072_KaengLueang",
+    "073_KungChaeNamPla",
+    "074_KungThotSotMakham",
+    "075_MuKrop",
+    "076_PuPhatPhongKari",
+    "077_KhaiChiao",
+    "078_KungObWunsen",
+    "079_PhatCha",
+    "080_HoiKraengLuak",
+    "081_HoMok",
+    "082_PlaMuekPhatKaiKem",
+    "083_PhatThai",
+    "084_ThotManKung",
+    "085_Sate",
+    "086_KhaoManKai",
+    "087_KaiThot",
+    "088_Lap",
+    "089_BaiLiangPhatKhai",
+    "090_KhaoSoi",
+    "091_KaoLao",
+    "092_ThotManPla",
+    "093_PuNueng",
+    "094_MuYang",
+    "095_SomTam",
+    "096_KungPhao",
+    "097_KhaoPhat",
+    "098_TomYam",
+    "099_PlaThot",
+    "100_KhaoNiewMaMuang"
+  ],
+  "labels": [
+    {
+      "code": "KhaoPhatAmerikan",
+      "folder": "000_KhaoPhatAmerikan",
+      "thai": "ข้าวผัดอเมริกัน",
+      "english": "Khao Phat Amerikan"
+    },
+    {
+      "code": "KhaoNaKai",
+      "folder": "001_KhaoNaKai",
+      "thai": "ข้าวหน้าไก่",
+      "english": "Khao Na Kai"
+    },
+    {
+      "code": "PoPiaThot",
+      "folder": "002_PoPiaThot",
+      "thai": "ปอเปี๊ยะทอด",
+      "english": "Po Pia Thot"
+    },
+    {
+      "code": "PhatSeeEw",
+      "folder": "003_PhatSeeEw",
+      "thai": "ผัดซีอิ๊ว",
+      "english": "Phat See Ew"
+    },
+    {
+      "code": "KrapoPlaNamDang",
+      "folder": "004_KrapoPlaNamDang",
+      "thai": "กระเพาะปลาน้ำแดง",
+      "english": "Krapo Pla Nam Dang"
+    },
+    {
+      "code": "SaiKrokIsan",
+      "folder": "005_SaiKrokIsan",
+      "thai": "ไส้กรอกอีสาน",
+      "english": "Sai Krok Isan"
+    },
+    {
+      "code": "LapKua",
+      "folder": "006_LapKua",
+      "thai": "ลาบคั่ว",
+      "english": "Lap Kua"
+    },
+    {
+      "code": "GaiPhatMedMamuangHimmapan",
+      "folder": "007_GaiPhatMedMamuangHimmapan",
+      "thai": "ไก่ผัดเม็ดมะม่วงหิมพานต์",
+      "english": "Gai Phat Med Mamuang Himmapan"
+    },
+    {
+      "code": "PhatPrikGang",
+      "folder": "008_PhatPrikGang",
+      "thai": "ผัดพริกแกง",
+      "english": "Phat Prik Gang"
+    },
+    {
+      "code": "PhatPrikThaiDam",
+      "folder": "009_PhatPrikThaiDam",
+      "thai": "ผัดพริกไทยดำ",
+      "english": "Phat Prik Thai Dam"
+    },
+    {
+      "code": "PlaNuengSeeEw",
+      "folder": "010_PlaNuengSeeEw",
+      "thai": "ปลานึ่งซีอิ๊ว",
+      "english": "Pla Nueng See Ew"
+    },
+    {
+      "code": "PhatKhanaeng",
+      "folder": "011_PhatKhanaeng",
+      "thai": "ผัดแขนง",
+      "english": "Phat Khanaeng"
+    },
+    {
+      "code": "KhaiKrata",
+      "folder": "012_KhaiKrata",
+      "thai": "ไข่กระทะ",
+      "english": "Khai Krata"
+    },
+    {
+      "code": "KangChued",
+      "folder": "013_KangChued",
+      "thai": "แกงจืด",
+      "english": "Kang Chued"
+    },
+    {
+      "code": "KuaitiaoRuea",
+      "folder": "014_KuaitiaoRuea",
+      "thai": "ก๋วยเตี๋ยวเรือ",
+      "english": "Kuaitiao Ruea"
+    },
+    {
+      "code": "KhaiTun",
+      "folder": "015_KhaiTun",
+      "thai": "ไข่ตุ๋น",
+      "english": "Khai Tun"
+    },
+    {
+      "code": "Roti",
+      "folder": "016_Roti",
+      "thai": "โรตี",
+      "english": "Roti"
+    },
+    {
+      "code": "MuHong",
+      "folder": "017_MuHong",
+      "thai": "หมูฮ้อง",
+      "english": "Mu Hong"
+    },
+    {
+      "code": "NamPrikNum",
+      "folder": "018_NamPrikNum",
+      "thai": "น้ำพริกหนุ่ม",
+      "english": "Nam Prik Num"
+    },
+    {
+      "code": "PhatThaiHoKhai",
+      "folder": "019_PhatThaiHoKhai",
+      "thai": "ผัดไทยห่อไข่",
+      "english": "Phat Thai Ho Khai"
+    },
+    {
+      "code": "KaengKhiaoWan",
+      "folder": "020_KaengKhiaoWan",
+      "thai": "แกงเขียวหวาน",
+      "english": "Kaeng Khiao Wan"
+    },
+    {
+      "code": "NamPrikOng",
+      "folder": "021_NamPrikOng",
+      "thai": "น้ำพริกอ่อง",
+      "english": "Nam Prik Ong"
+    },
+    {
+      "code": "KhaoChae",
+      "folder": "022_KhaoChae",
+      "thai": "ข้าวแช่",
+      "english": "Khao Chae"
+    },
+    {
+      "code": "KhaoKlukKapi",
+      "folder": "023_KhaoKlukKapi",
+      "thai": "ข้าวคลุกกะปิ",
+      "english": "Khao Kluk Kapi"
+    },
+    {
+      "code": "PlaMuekThot",
+      "folder": "024_PlaMuekThot",
+      "thai": "ปลาหมึกทอด",
+      "english": "Pla Muek Thot"
+    },
+    {
+      "code": "KuaKling",
+      "folder": "025_KuaKling",
+      "thai": "คั่วกลิ้ง",
+      "english": "Kua Kling"
+    },
+    {
+      "code": "PhatKana",
+      "folder": "026_PhatKana",
+      "thai": "ผัดคะน้า",
+      "english": "Phat Kana"
+    },
+    {
+      "code": "PlaNuengManao",
+      "folder": "027_PlaNuengManao",
+      "thai": "ปลานึ่งมะนาว",
+      "english": "Pla Nueng Manao"
+    },
+    {
+      "code": "TomKha",
+      "folder": "028_TomKha",
+      "thai": "ต้มข่า",
+      "english": "Tom Kha"
+    },
+    {
+      "code": "YamWoonSen",
+      "folder": "029_YamWoonSen",
+      "thai": "ยำวุ้นเส้น",
+      "english": "Yam Woon Sen"
+    },
+    {
+      "code": "PlaPhao",
+      "folder": "030_PlaPhao",
+      "thai": "ปลาเผา",
+      "english": "Pla Phao"
+    },
+    {
+      "code": "PlaMuekPhatNamDam",
+      "folder": "031_PlaMuekPhatNamDam",
+      "thai": "ปลาหมึกผัดน้ำดำ",
+      "english": "Pla Muek Phat Nam Dam"
+    },
+    {
+      "code": "KiaoThot",
+      "folder": "032_KiaoThot",
+      "thai": "เกี๊ยวทอด",
+      "english": "Kiao Thot"
+    },
+    {
+      "code": "KangThotKratiam",
+      "folder": "033_KangThotKratiam",
+      "thai": "กั้งทอดกระเทียม",
+      "english": "Kang Thot Kratiam"
+    },
+    {
+      "code": "PhatPakBungFaiDaeng",
+      "folder": "034_PhatPakBungFaiDaeng",
+      "thai": "ผัดผักบุ้งไฟแดง",
+      "english": "Phat Pak Bung Fai Daeng"
+    },
+    {
+      "code": "TaoHooThot",
+      "folder": "035_TaoHooThot",
+      "thai": "เต้าหู้ทอด",
+      "english": "Tao Hoo Thot"
+    },
+    {
+      "code": "YamHoi",
+      "folder": "036_YamHoi",
+      "thai": "ยำหอย",
+      "english": "Yam Hoi"
+    },
+    {
+      "code": "SukiHaeng",
+      "folder": "037_SukiHaeng",
+      "thai": "สุกี้แห้ง",
+      "english": "Suki Haeng"
+    },
+    {
+      "code": "KungThot",
+      "folder": "038_KungThot",
+      "thai": "กุ้งทอด",
+      "english": "Kung Thot"
+    },
+    {
+      "code": "PoPiaSod",
+      "folder": "039_PoPiaSod",
+      "thai": "ปอเปี๊ยะสด",
+      "english": "Po Pia Sod"
+    },
+    {
+      "code": "PhatPrikSod",
+      "folder": "040_PhatPrikSod",
+      "thai": "ผัดพริกสด",
+      "english": "Phat Prik Sod"
+    },
+    {
+      "code": "KaengHangLe",
+      "folder": "041_KaengHangLe",
+      "thai": "แกงฮังเล",
+      "english": "Kaeng Hang Le"
+    },
+    {
+      "code": "KhanomCheeb",
+      "folder": "042_KhanomCheeb",
+      "thai": "ขนมจีบ",
+      "english": "Khanom Cheeb"
+    },
+    {
+      "code": "KuaitiaoKuaKai",
+      "folder": "043_KuaitiaoKuaKai",
+      "thai": "ก๋วยเตี๋ยวคั่วไก่",
+      "english": "Kuaitiao Kua Kai"
+    },
+    {
+      "code": "PuNimThotKratiam",
+      "folder": "044_PuNimThotKratiam",
+      "thai": "ปูนิ่มทอดกระเทียม",
+      "english": "Pu Nim Thot Kratiam"
+    },
+    {
+      "code": "KalampliPhatNamPla",
+      "folder": "045_KalampliPhatNamPla",
+      "thai": "กะหล่ำปลีผัดน้ำปลา",
+      "english": "Kalampli Phat Nam Pla"
+    },
+    {
+      "code": "KhaoMokKai",
+      "folder": "046_KhaoMokKai",
+      "thai": "ข้าวหมกไก่",
+      "english": "Khao Mok Kai"
+    },
+    {
+      "code": "PhatKapi",
+      "folder": "047_PhatKapi",
+      "thai": "ผัดกะปิ",
+      "english": "Phat Kapi"
+    },
+    {
+      "code": "SaiUa",
+      "folder": "048_SaiUa",
+      "thai": "ไส้อั่ว",
+      "english": "Sai Ua"
+    },
+    {
+      "code": "YamPlaDukFu",
+      "folder": "049_YamPlaDukFu",
+      "thai": "ยำปลาดุกฟู",
+      "english": "Yam Pla Duk Fu"
+    },
+    {
+      "code": "HoiThot",
+      "folder": "050_HoiThot",
+      "thai": "หอยทอด",
+      "english": "Hoi Thot"
+    },
+    {
+      "code": "PhatKaprao",
+      "folder": "051_PhatKaprao",
+      "thai": "ผัดกะเพรา",
+      "english": "Phat Kaprao"
+    },
+    {
+      "code": "KhaoSuai",
+      "folder": "052_KhaoSuai",
+      "thai": "ข้าวสวย",
+      "english": "Khao Suai"
+    },
+    {
+      "code": "HoiCho",
+      "folder": "053_HoiCho",
+      "thai": "หอยจ๊อ",
+      "english": "Hoi Cho"
+    },
+    {
+      "code": "HoiPhatNamPrikPhao",
+      "folder": "054_HoiPhatNamPrikPhao",
+      "thai": "หอยผัดน้ำพริกเผา",
+      "english": "Hoi Phat Nam Prik Phao"
+    },
+    {
+      "code": "KhaoKhaMu",
+      "folder": "055_KhaoKhaMu",
+      "thai": "ข้าวขาหมู",
+      "english": "Khao Kha Mu"
+    },
+    {
+      "code": "KaengKuaHoi",
+      "folder": "056_KaengKuaHoi",
+      "thai": "แกงคั่วหอย",
+      "english": "Kaeng Kua Hoi"
+    },
+    {
+      "code": "KhaoTom",
+      "folder": "057_KhaoTom",
+      "thai": "ข้าวต้ม",
+      "english": "Khao Tom"
+    },
+    {
+      "code": "KhaoMuDaeng",
+      "folder": "058_KhaoMuDaeng",
+      "thai": "ข้าวหมูแดง",
+      "english": "Khao Mu Daeng"
+    },
+    {
+      "code": "Palo",
+      "folder": "059_Palo",
+      "thai": "พะโล้",
+      "english": "Palo"
+    },
+    {
+      "code": "KuaPrikKluea",
+      "folder": "060_KuaPrikKluea",
+      "thai": "คั่วพริกเกลือ",
+      "english": "Kua Prik Kluea"
+    },
+    {
+      "code": "RatNa",
+      "folder": "061_RatNa",
+      "thai": "ราดหน้า",
+      "english": "Rat Na"
+    },
+    {
+      "code": "TaoJiaoLon",
+      "folder": "062_TaoJiaoLon",
+      "thai": "เต้าเจี้ยวหลน",
+      "english": "Tao Jiao Lon"
+    },
+    {
+      "code": "Yentafo",
+      "folder": "063_Yentafo",
+      "thai": "เย็นตาโฟ",
+      "english": "Yentafo"
+    },
+    {
+      "code": "PlaMuekNguengManao",
+      "folder": "064_PlaMuekNguengManao",
+      "thai": "ปลาหมึกนึ่งมะนาว",
+      "english": "Pla Muek Ngueng Manao"
+    },
+    {
+      "code": "KaengPa",
+      "folder": "065_KaengPa",
+      "thai": "แกงป่า",
+      "english": "Kaeng Pa"
+    },
+    {
+      "code": "Chok",
+      "folder": "066_Chok",
+      "thai": "โจ๊ก",
+      "english": "Chok"
+    },
+    {
+      "code": "KhanomCheenNamNgiao",
+      "folder": "067_KhanomCheenNamNgiao",
+      "thai": "ขนมจีนน้ำเงี้ยว",
+      "english": "Khanom Cheen Nam Ngiao"
+    },
+    {
+      "code": "Kuaichap",
+      "folder": "068_Kuaichap",
+      "thai": "ก๋วยจั๊บ",
+      "english": "Kuaichap"
+    },
+    {
+      "code": "KaengSom",
+      "folder": "069_KaengSom",
+      "thai": "แกงส้ม",
+      "english": "Kaeng Som"
+    },
+    {
+      "code": "HoiNangrom",
+      "folder": "070_HoiNangrom",
+      "thai": "หอยนางรม",
+      "english": "Hoi Nangrom"
+    },
+    {
+      "code": "KhanomCheen",
+      "folder": "071_KhanomCheen",
+      "thai": "ขนมจีน",
+      "english": "Khanom Cheen"
+    },
+    {
+      "code": "KaengLueang",
+      "folder": "072_KaengLueang",
+      "thai": "แกงเหลือง",
+      "english": "Kaeng Lueang"
+    },
+    {
+      "code": "KungChaeNamPla",
+      "folder": "073_KungChaeNamPla",
+      "thai": "กุ้งแช่น้ำปลา",
+      "english": "Kung Chae Nam Pla"
+    },
+    {
+      "code": "KungThotSotMakham",
+      "folder": "074_KungThotSotMakham",
+      "thai": "กุ้งทอดซอสมะขาม",
+      "english": "Kung Thot Sot Makham"
+    },
+    {
+      "code": "MuKrop",
+      "folder": "075_MuKrop",
+      "thai": "หมูกรอบ",
+      "english": "Mu Krop"
+    },
+    {
+      "code": "PuPhatPhongKari",
+      "folder": "076_PuPhatPhongKari",
+      "thai": "ปูผัดผงกะหรี่",
+      "english": "Pu Phat Phong Kari"
+    },
+    {
+      "code": "KhaiChiao",
+      "folder": "077_KhaiChiao",
+      "thai": "ไข่เจียว",
+      "english": "Khai Chiao"
+    },
+    {
+      "code": "KungObWunsen",
+      "folder": "078_KungObWunsen",
+      "thai": "กุ้งอบวุ้นเส้น",
+      "english": "Kung Ob Wunsen"
+    },
+    {
+      "code": "PhatCha",
+      "folder": "079_PhatCha",
+      "thai": "ผัดฉ่า",
+      "english": "Phat Cha"
+    },
+    {
+      "code": "HoiKraengLuak",
+      "folder": "080_HoiKraengLuak",
+      "thai": "หอยแครงลวก",
+      "english": "Hoi Kraeng Luak"
+    },
+    {
+      "code": "HoMok",
+      "folder": "081_HoMok",
+      "thai": "ห่อหมก",
+      "english": "Ho Mok"
+    },
+    {
+      "code": "PlaMuekPhatKaiKem",
+      "folder": "082_PlaMuekPhatKaiKem",
+      "thai": "ปลาหมึกผัดไข่เค็ม",
+      "english": "Pla Muek Phat Kai Kem"
+    },
+    {
+      "code": "PhatThai",
+      "folder": "083_PhatThai",
+      "thai": "ผัดไทย",
+      "english": "Phat Thai"
+    },
+    {
+      "code": "ThotManKung",
+      "folder": "084_ThotManKung",
+      "thai": "ทอดมันกุ้ง",
+      "english": "Thot Man Kung"
+    },
+    {
+      "code": "Sate",
+      "folder": "085_Sate",
+      "thai": "สะเต๊ะ",
+      "english": "Sate"
+    },
+    {
+      "code": "KhaoManKai",
+      "folder": "086_KhaoManKai",
+      "thai": "ข้าวมันไก่",
+      "english": "Khao Man Kai"
+    },
+    {
+      "code": "KaiThot",
+      "folder": "087_KaiThot",
+      "thai": "ไก่ทอด",
+      "english": "Kai Thot"
+    },
+    {
+      "code": "Lap",
+      "folder": "088_Lap",
+      "thai": "ลาบ",
+      "english": "Lap"
+    },
+    {
+      "code": "BaiLiangPhatKhai",
+      "folder": "089_BaiLiangPhatKhai",
+      "thai": "ใบเหลียงผัดไข่",
+      "english": "Bai Liang Phat Khai"
+    },
+    {
+      "code": "KhaoSoi",
+      "folder": "090_KhaoSoi",
+      "thai": "ข้าวซอย",
+      "english": "Khao Soi"
+    },
+    {
+      "code": "KaoLao",
+      "folder": "091_KaoLao",
+      "thai": "เกาเหลา",
+      "english": "Kao Lao"
+    },
+    {
+      "code": "ThotManPla",
+      "folder": "092_ThotManPla",
+      "thai": "ทอดมันปลา",
+      "english": "Thot Man Pla"
+    },
+    {
+      "code": "PuNueng",
+      "folder": "093_PuNueng",
+      "thai": "ปูนึ่ง",
+      "english": "Pu Nueng"
+    },
+    {
+      "code": "MuYang",
+      "folder": "094_MuYang",
+      "thai": "หมูย่าง",
+      "english": "Mu Yang"
+    },
+    {
+      "code": "SomTam",
+      "folder": "095_SomTam",
+      "thai": "ส้มตำ",
+      "english": "Som Tam"
+    },
+    {
+      "code": "KungPhao",
+      "folder": "096_KungPhao",
+      "thai": "กุ้งเผา",
+      "english": "Kung Phao"
+    },
+    {
+      "code": "KhaoPhat",
+      "folder": "097_KhaoPhat",
+      "thai": "ข้าวผัด",
+      "english": "Khao Phat"
+    },
+    {
+      "code": "TomYam",
+      "folder": "098_TomYam",
+      "thai": "ต้มยำ",
+      "english": "Tom Yam"
+    },
+    {
+      "code": "PlaThot",
+      "folder": "099_PlaThot",
+      "thai": "ปลาทอด",
+      "english": "Pla Thot"
+    },
+    {
+      "code": "KhaoNiewMaMuang",
+      "folder": "100_KhaoNiewMaMuang",
+      "thai": "ข้าวเหนียวมะม่วง",
+      "english": "Khao Niao Mamuang"
+    }
+  ],
+  "source": "fine-tuned on THFOOD-100 (Theera-Ampornpunt & Treepong, 2024; non-commercial research/education) + KhaoNiewMaMuang from siamtech-food10",
+  "test_accuracy": 0.923,
+  "test_top5_accuracy": 0.9909,
+  "test_macro_f1": 0.8934,
+  "note": "single run, official THFOOD-100 test split"
+}

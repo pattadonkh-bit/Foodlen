@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('แก้ไขมื้ออาหาร')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('home')}"></header>
+<main class="container narrow">
+    <h1>แก้ไขมื้ออาหาร</h1>
+    <p class="subtitle">ของ <b th:text="${ov.child.name}"></b> · ระบบจะประเมินไฟจราจรและคำแนะนำของมื้อนี้ใหม่ด้วยข้อมูลเด็กปัจจุบัน</p>
+
+    <div class="msg error" th:if="${error}" th:text="${error}"></div>
+
+    <form class="card" th:action="@{/children/{id}/meals/{mid}/edit(id=${ov.child.id},mid=${meal.id})}" method="post">
+        <label>เมนู <span class="muted" style="font-weight:400">(ค้นหาแล้วเลือก)</span></label>
+        <div th:replace="~{fragments :: menuPicker(${menus}, ${meal.menuCode})}"></div>
+
+        <label>สัดส่วนที่เด็กรับประทาน <span class="muted" style="font-weight:400">(เทียบกับ 1 หน่วยบริโภคของเมนู)</span></label>
+        <div class="portion" th:with="std=${T(java.util.List).of(0.5, 1.0, 1.5, 2.0, 3.0, 5.0)}">
+            <label th:unless="${std.contains(meal.portion)}">
+                <input type="radio" name="portion" th:value="${meal.portion}" checked>
+                <span th:text="${meal.portion} + ' (เดิม)'"></span>
+            </label>
+            <label th:each="p : ${std}">
+                <input type="radio" name="portion" th:value="${p}" th:checked="${p == meal.portion}">
+                <span th:text="${p == 0.5 ? '½' : (p == 1.5 ? '1½' : #numbers.formatInteger(p, 1))}"></span>
+            </label>
+        </div>
+
+        <div th:replace="~{fragments :: mealPreview(${ov.dailyKcal})}"></div>
+
+        <div class="grid-2" style="gap:14px">
+            <div>
+                <label for="mealType">มื้อ</label>
+                <select id="mealType" name="mealType">
+                    <option th:each="t : ${mealTypes}" th:value="${t.name()}" th:text="${t.label}"
+                            th:selected="${t == meal.mealType}"></option>
+                </select>
+            </div>
+            <div>
+                <label for="eatenDate">วันที่กิน</label>
+                <input type="date" id="eatenDate" name="eatenDate" th:value="${eatenDate}" th:max="${today}">
+            </div>
+        </div>
+
+        <div class="row" style="margin-top:20px">
+            <button class="btn" type="submit">บันทึกการแก้ไข</button>
+            <a class="btn secondary" th:href="@{/children/{id}/meals/{mid}(id=${ov.child.id},mid=${meal.id})}">ยกเลิก</a>
+        </div>
+    </form>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#1f9d6b">
+    <title th:text="${title} + ' | ' + ${brand}">NutriKid</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script th:src="@{/js/app.js}" defer></script>
+</head>
+<body>
+<header class="topbar" th:fragment="nav(active)">
+    <div class="topbar-inner">
+        <a class="brand" th:href="@{/}">
+            <span class="brand-mark">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+                    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+                </svg>
+            </span>
+            <span th:text="${brand}">NutriKid</span>
+        </a>
+        <nav class="nav" th:if="${currentUser != null}">
+            <a th:href="@{/}" th:classappend="${active == 'home'} ? 'active'">หน้าแรก</a>
+            <a th:if="${currentUser.staff}" th:href="@{/staff/class}" th:classappend="${active == 'staff'} ? 'active'">ภาพรวมห้อง</a>
+            <a th:href="@{/stats}" th:classappend="${active == 'stats'} ? 'active'">สถิติรวม</a>
+            <a th:href="@{/children/new}" th:classappend="${active == 'new'} ? 'active'">เพิ่มเด็ก</a>
+            <a th:href="@{/rules}" th:classappend="${active == 'rules'} ? 'active'">กฎและข้อมูลอ้างอิง</a>
+            <span class="nav-user" th:title="${currentUser.role.label}">
+                <span th:text="${currentUser.role.label}">บทบาท</span> · <b th:text="${currentUser.displayName}">ชื่อ</b>
+            </span>
+            <form class="nav-logout" th:action="@{/logout}" method="post">
+                <button type="submit">ออกจากระบบ</button>
+            </form>
+        </nav>
+    </div>
+    <script>
+        // เมนูบนมือถือเลื่อนได้ ให้เลื่อนมาที่หน้าปัจจุบันอัตโนมัติ
+        (function () {
+            var nav = document.querySelector('.nav'), a = nav && nav.querySelector('a.active');
+            if (a && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = a.offsetLeft - (nav.clientWidth - a.offsetWidth) / 2;
+        })();
+    </script>
+</header>
+<footer class="footer" th:fragment="footer">
+    ระบบนี้เป็นเครื่องมือเฝ้าระวังภาวะโภชนาการเบื้องต้น ไม่ใช่การวินิจฉัยหรือคำแนะนำทางการแพทย์
+    หากเด็กมีภาวะผิดปกติ ควรปรึกษานักโภชนาการหรือแพทย์ ·
+    ค่าโภชนาการและกฎคำแนะนำเป็นค่าเริ่มต้นสำหรับสาธิต ยังไม่ผ่านการตรวจสอบโดยผู้เชี่ยวชาญ
+</footer>
+<!-- ตัวบอกขั้นตอนการบันทึกมื้อ: n = ขั้นปัจจุบัน (1 ภาพอาหาร, 2 ยืนยันเมนู, 3 ผลประเมิน) -->
+<ol class="steps" th:fragment="steps(n)">
+    <li th:classappend="${n == 1} ? 'now' : 'done'">เลือกภาพอาหาร</li>
+    <li th:classappend="${n == 2} ? 'now' : (${n > 2} ? 'done' : '')">ยืนยันเมนูและปริมาณ</li>
+    <li th:classappend="${n == 3} ? 'now' : ''">ผลประเมิน</li>
+</ol>
+<!-- ตัวเลือกเมนูแบบค้นหา (ใช้ radio ชื่อ menuCode; พฤติกรรมอยู่ใน /js/app.js) -->
+<div th:fragment="menuPicker(menus, selected)" class="picker" data-picker>
+    <input type="search" class="picker-search" placeholder="🔍 พิมพ์ค้นหาเมนู เช่น ข้าวมันไก่ นมจืด ส้มตำ" autocomplete="off" aria-label="ค้นหาเมนู">
+    <div class="chips">
+        <button type="button" class="chip on" data-filter="">ทั้งหมด</button>
+        <button type="button" class="chip" data-filter="starch">ข้าว/เส้น/แป้ง</button>
+        <button type="button" class="chip" data-filter="protein">เนื้อสัตว์/ไข่</button>
+        <button type="button" class="chip" data-filter="drink">เครื่องดื่ม/นม</button>
+        <button type="button" class="chip" data-filter="fruit">ผลไม้</button>
+        <button type="button" class="chip" data-filter="sweet">ขนมหวาน</button>
+        <button type="button" class="chip" data-filter="fried">ของทอด</button>
+    </div>
+    <div class="picker-list">
+        <label class="pick" th:each="m : ${menus}"
+              th:attr="data-name=${m.nameTh + ' ' + m.nameEn},data-groups=${#strings.listJoin(m.foodGroups, ' ')},data-tags=${#strings.setJoin(m.tags, ' ')},data-kcal=${m.energyKcal},data-serving=${m.serving},data-label=${m.nameTh}">
+            <input type="radio" name="menuCode" th:value="${m.code}" th:checked="${selected != null and m.code == selected}" required>
+            <span class="pick-name" th:text="${m.nameTh}">เมนู</span>
+            <span class="pick-meta" th:text="${m.serving + (m.energyKcal != null ? ' · ' + #numbers.formatDecimal(m.energyKcal,1,0) + ' kcal' : '')}"></span>
+        </label>
+    </div>
+    <div class="picker-empty">ไม่พบเมนูที่ค้นหา ลองพิมพ์คำอื่นหรือกด “ทั้งหมด”</div>
+</div>
+<!-- สรุปสดของมื้อที่เลือก: ค่าที่แสดงคำนวณในเบราว์เซอร์ (ผลไฟจราจรจริงคำนวณตอนบันทึก) -->
+<div th:fragment="mealPreview(daily)" id="mealPreview" class="preview-box" th:attr="data-daily=${daily}" hidden>
+    <div>เมนูที่เลือก: <b data-pv="name"></b></div>
+    <div class="muted">1 หน่วยบริโภค = <span data-pv="serving"></span> (<span data-pv="kcal"></span> kcal)</div>
+    <div style="margin-top:6px"><span class="big" data-pv="total"></span> <span class="muted" data-pv="share"></span></div>
+</div>
+<th:block th:fragment="chartScripts">
+    <script th:src="@{/js/chart.umd.min.js}"></script>
+    <script th:src="@{/js/charts.js}"></script>
+</th:block>
+</body>
+</html>

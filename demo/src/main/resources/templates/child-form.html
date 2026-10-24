@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('เพิ่มเด็ก')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('new')}"></header>
+<main class="container narrow">
+    <h1>เพิ่มเด็ก</h1>
+    <p class="subtitle">กรอกข้อมูลเพื่อประเมินภาวะโภชนาการตามเกณฑ์ BMI-for-age (WHO 2007)</p>
+
+    <div class="msg error" th:if="${error}" th:text="${error}"></div>
+
+    <form class="card" th:action="@{/children}" method="post">
+        <label for="name">ชื่อ (ใช้ชื่อเล่นหรือรหัสแทนชื่อจริงได้)</label>
+        <input type="text" id="name" name="name" maxlength="100" required th:value="${form.name}">
+
+        <label>เพศ</label>
+        <div class="inline">
+            <label><input type="radio" name="sex" value="M" required th:checked="${form.sex != null and form.sex.name() == 'M'}"> ชาย</label>
+            <label><input type="radio" name="sex" value="F" th:checked="${form.sex != null and form.sex.name() == 'F'}"> หญิง</label>
+        </div>
+
+        <label for="birthDate">วันเกิด</label>
+        <input type="date" id="birthDate" name="birthDate" required th:value="${form.birthDate}">
+
+        <label for="classroom">ชั้น/ห้องเรียน <span class="muted" style="font-weight:400">(ไม่บังคับ เช่น ป.4/2 ใช้กรองในหน้าภาพรวมของครู)</span></label>
+        <input type="text" id="classroom" name="classroom" maxlength="50" th:value="${form.classroom}">
+
+        <div class="grid-3">
+            <div>
+                <label for="measuredOn">วันที่วัด</label>
+                <input type="date" id="measuredOn" name="measuredOn" required th:value="${form.measuredOn}">
+            </div>
+            <div>
+                <label for="weightKg">น้ำหนัก (กก.)</label>
+                <input type="number" id="weightKg" name="weightKg" step="0.1" min="5" max="150" required th:value="${form.weightKg}">
+            </div>
+            <div>
+                <label for="heightCm">ส่วนสูง (ซม.)</label>
+                <input type="number" id="heightCm" name="heightCm" step="0.1" min="80" max="220" required th:value="${form.heightCm}">
+            </div>
+        </div>
+
+        <label class="choice" style="margin-top:18px">
+            <input type="checkbox" name="consent" value="true" th:checked="${form.consent}">
+            ผู้ปกครองยินยอมให้เก็บข้อมูลของเด็ก (ชื่อ วันเกิด น้ำหนัก ส่วนสูง และประวัติมื้ออาหาร)
+            เพื่อการเฝ้าระวังภาวะโภชนาการในระบบนี้ ระบบไม่เก็บไฟล์ภาพอาหาร และลบข้อมูลได้ทุกเมื่อ
+        </label>
+
+        <div class="row" style="margin-top:18px">
+            <button class="btn" type="submit">บันทึกและประเมินภาวะโภชนาการ</button>
+            <a class="btn secondary" th:href="@{/}">ยกเลิก</a>
+        </div>
+    </form>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

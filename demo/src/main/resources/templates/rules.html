@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('กฎและข้อมูลอ้างอิง')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('rules')}"></header>
+<main class="container">
+    <h1>กฎและข้อมูลอ้างอิง</h1>
+    <p class="subtitle">หน้านี้ให้ผู้เชี่ยวชาญตรวจสอบกฎคำแนะนำ ค่าพลังงานอ้างอิง และตารางโภชนาการของเมนู</p>
+
+    <div class="msg warn">
+        ข้อมูลทั้งหมดในหน้านี้เป็นค่าเริ่มต้นสำหรับสาธิต <b>ยังไม่ผ่านการตรวจสอบโดยผู้เชี่ยวชาญด้านโภชนาการ</b>
+        แก้ไขได้ที่ไฟล์ในโฟลเดอร์ <code>src/main/resources/data/</code>
+    </div>
+
+    <section class="card">
+        <h2>เกณฑ์ความมั่นใจของ AI</h2>
+        <p>ถ้าความมั่นใจของเมนูอันดับ 1 ต่ำกว่า <b th:text="${#numbers.formatDecimal(threshold*100,1,0)} + '%'">80%</b>
+            ระบบจะให้ผู้ใช้ยืนยันเมนูก่อนนำไปคำนวณ (ตั้งค่าที่ <code>foodlen.confidence-threshold</code>)</p>
+    </section>
+
+    <section class="card">
+        <h2>กฎคำแนะนำ (recommendation_rules.psv)</h2>
+        <div class="scroll">
+            <table>
+                <thead><tr><th>รหัส</th><th>ภาวะโภชนาการ</th><th>มื้อ</th><th>เงื่อนไข</th><th>ระดับ</th><th>คำแนะนำ</th></tr></thead>
+                <tbody>
+                <tr th:each="r : ${rules}">
+                    <td th:text="${r.id}"></td>
+                    <td th:text="${r.statusGroup}"></td>
+                    <td th:text="${r.mealKind}"></td>
+                    <td th:text="${r.condition + ' ' + r.value}"></td>
+                    <td><span class="light" th:classappend="${r.level.cssClass}"></span><span th:text="${r.level.label}"></span></td>
+                    <td th:text="${r.message}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="muted" style="margin-top:8px">
+            SHARE_GT/SHARE_LT = สัดส่วนพลังงานของมื้อต่อพลังงานที่ควรได้รับต่อวัน · TAG = ลักษณะของเมนู ·
+            MAIN = มื้อหลัก (เช้า กลางวัน เย็น) · SNACK = ของว่าง
+        </p>
+    </section>
+
+    <section class="card">
+        <h2>พลังงานอ้างอิงต่อวัน (energy_targets.csv)</h2>
+        <div class="scroll">
+        <table>
+            <thead><tr><th>เพศ</th><th>อายุ (ปี)</th><th class="num">kcal/วัน</th><th>แหล่งที่มา</th></tr></thead>
+            <tbody>
+            <tr th:each="t : ${targets}">
+                <td th:text="${t.sex}"></td>
+                <td th:text="${t.minYears + '–' + t.maxYears}"></td>
+                <td class="num" th:text="${t.kcalPerDay}"></td>
+                <td th:text="${t.source}"></td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>เมนูและข้อมูลโภชนาการ (menu_nutrition.csv)</h2>
+        <div class="scroll">
+            <table class="wide">
+                <thead><tr><th>เมนู</th><th>หน่วยบริโภค</th><th class="num">kcal</th><th class="num">โปรตีน</th><th class="num">ไขมัน</th><th class="num">คาร์โบฯ</th><th>tag</th><th>หมู่อาหาร</th><th>สถานะ/แหล่ง</th></tr></thead>
+                <tbody>
+                <tr th:each="m : ${menus}">
+                    <td><b th:text="${m.nameTh}"></b><br><span class="muted" th:text="${m.code}"></span></td>
+                    <td th:text="${m.serving}"></td>
+                    <td class="num" th:text="${m.energyKcal != null} ? ${#numbers.formatDecimal(m.energyKcal,1,0)} : '–'"></td>
+                    <td class="num" th:text="${m.proteinG != null} ? ${m.proteinG} : '–'"></td>
+                    <td class="num" th:text="${m.fatG != null} ? ${m.fatG} : '–'"></td>
+                    <td class="num" th:text="${m.carbG != null} ? ${m.carbG} : '–'"></td>
+                    <td th:text="${#strings.setJoin(m.tags,', ')}"></td>
+                    <td th:text="${#strings.listJoin(m.foodGroups,', ')}"></td>
+                    <td><span class="badge" th:classappend="${m.status == 'no_data'} ? 'bad' : 'warn'"
+                             th:text="${m.status == 'provisional'} ? 'จากตาราง (ทุติยภูมิ)' : (${m.status == 'estimated'} ? 'ประมาณเอง' : 'ไม่มีข้อมูล')"></span>
+                        <span class="muted" th:text="${m.source}"></span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="muted" style="margin-top:8px">
+            ช่องที่เป็น "–" ยังไม่มีค่าที่ตรวจสอบได้ ควรกรอกจากฐานข้อมูลองค์ประกอบอาหารไทย (Thai FCD) ของสถาบันโภชนาการ มหาวิทยาลัยมหิดล
+        </p>
+    </section>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

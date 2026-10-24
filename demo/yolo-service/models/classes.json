@@ -1,0 +1,18 @@
+{
+  "model": "resnet50",
+  "architecture": "resnet50",
+  "num_classes": 10,
+  "classes": [
+    "FriedChicken",
+    "GaengKeawWan",
+    "KaoManGai",
+    "KhaoNiewMaMuang",
+    "KuayTeowReua",
+    "PadThai",
+    "PhatKaphrao",
+    "Somtam",
+    "StewedPorkLeg",
+    "TomYumGoong"
+  ],
+  "source": "fine-tuned on siamtech-food10 (subset of THFOOD-50); test accuracy 0.9862 (single run)"
+}

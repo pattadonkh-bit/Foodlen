@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('สถิติรวม')}"></head>
+<body>
+<header th:replace="~{fragments :: nav('stats')}"></header>
+<main class="container">
+    <h1>📊 สถิติรวม</h1>
+    <p class="subtitle">ภาพรวมของเด็กทุกคนและมื้ออาหารทั้งหมดที่บันทึกในระบบ</p>
+
+    <div class="grid-4" style="margin-bottom:20px">
+        <div class="tile"><div class="ico">👧</div><div><b th:text="${stats.children}">0</b><span>เด็กที่ลงทะเบียน</span></div></div>
+        <div class="tile blue"><div class="ico">🍱</div><div><b th:text="${stats.meals}">0</b><span>มื้อที่บันทึกทั้งหมด</span></div></div>
+        <div class="tile red"><div class="ico">🚦</div><div><b th:text="${stats.redPercentLast7 != null} ? ${stats.redPercentLast7} + '%' : '–'">–</b><span>มื้อไฟแดง (7 วันล่าสุด)</span></div></div>
+        <div class="tile yellow"><div class="ico">🤖</div><div><b th:text="${stats.aiAutoPercent} + '%'">0%</b><span>AI รับอัตโนมัติ (จากมื้อที่ใช้ AI)</span></div></div>
+    </div>
+
+    <div class="msg info" th:if="${stats.meals == 0}">ยังไม่มีมื้ออาหารที่บันทึก กราฟจะแสดงเมื่อมีข้อมูล</div>
+
+    <div class="grid-2">
+        <section class="card">
+            <h2>ภาวะโภชนาการของเด็ก</h2>
+            <div class="chart-box donut"><canvas data-chart="statusDonut" data-url="/api/stats"></canvas></div>
+        </section>
+        <section class="card">
+            <h2>ไฟจราจรของทุกมื้อ</h2>
+            <div class="chart-box donut"><canvas data-chart="levelDonut" data-url="/api/stats"></canvas></div>
+        </section>
+    </div>
+
+    <section class="card">
+        <h2>จำนวนมื้อตามไฟจราจร 14 วันล่าสุด</h2>
+        <div class="chart-box"><canvas data-chart="days14" data-url="/api/stats"></canvas></div>
+    </section>
+
+    <div class="grid-2">
+        <section class="card">
+            <h2>เมนูที่บันทึกบ่อยที่สุด</h2>
+            <div class="chart-box"><canvas data-chart="topMenus" data-url="/api/stats"></canvas></div>
+        </section>
+        <section class="card">
+            <h2>ไฟจราจรแยกตามภาวะโภชนาการ</h2>
+            <div class="chart-box"><canvas data-chart="levelByStatus" data-url="/api/stats"></canvas></div>
+            <p class="muted" style="margin:8px 0 0">ดูว่าเด็กแต่ละกลุ่ม (เช่น อ้วน ผอม) ได้ไฟสีไหนมากน้อยแค่ไหน</p>
+        </section>
+    </div>
+
+    <section class="card">
+        <h2>เมนูมาจากไหน: AI หรือผู้ใช้ยืนยัน</h2>
+        <div class="grid-2" style="align-items:center">
+            <div class="chart-box donut"><canvas data-chart="sourceDonut" data-url="/api/stats"></canvas></div>
+            <div class="muted" style="font-size:15px">
+                <b style="color:var(--ink)">AI จำแนก (ความมั่นใจถึงเกณฑ์)</b> = ระบบรับอัตโนมัติ<br>
+                <b style="color:var(--ink)">AI จำแนก และผู้ใช้ยืนยัน/แก้ไข</b> = ความมั่นใจต่ำ ผู้ใช้เลือกเมนูเอง<br>
+                <b style="color:var(--ink)">ผู้ใช้เลือกเมนูเอง</b> = ไม่ได้ใช้ภาพ<br><br>
+                ใช้ดูว่าเกณฑ์ความมั่นใจที่ตั้งไว้ทำให้ผู้ใช้ต้องยืนยันบ่อยแค่ไหน
+            </div>
+        </div>
+    </section>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+<th:block th:replace="~{fragments :: chartScripts}"></th:block>
+</body>
+</html>

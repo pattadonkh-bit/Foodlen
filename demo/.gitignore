@@ -31,3 +31,16 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Foodlen runtime data ###
+/data/
+uploads/
+yolo-service/models/*.pt
+# ไฟล์ .pt ไม่ต้องอยู่ใน repo: Render ใช้ yolo-service/models/resnet50_thfood101.onnx (90 MB ต่ำกว่าขีดจำกัด 100 MB ของ GitHub) ซึ่งไม่ถูก ignore
+yolo-service/__pycache__/
+
+### Deploy ###
+.env
+
+### Python virtualenv ###
+.venv/
