@@ -83,7 +83,111 @@
     update();
   }
 
+  /* ถ่ายภาพจากกล้องในเบราว์เซอร์ (getUserMedia): ถ่ายแล้วใส่ไฟล์ JPEG ลงในช่อง input[type=file] ของฟอร์มเดิม
+   * ภาพถูกย่อให้ด้านยาวไม่เกิน 1280 px ก่อนส่ง กล้องใช้ได้เฉพาะบน HTTPS หรือ localhost */
+  var MAX_SIDE = 1280;
+
+  function cameraError(err) {
+    var name = err && err.name;
+    if (name === "NotAllowedError" || name === "SecurityError") {
+      return "ไม่ได้รับอนุญาตให้ใช้กล้อง กรุณากดอนุญาตที่ไอคอนกล้องหรือแม่กุญแจบนแถบที่อยู่ของเบราว์เซอร์ แล้วลองใหม่ (หรือกด “เลือกไฟล์ภาพ”)";
+    }
+    if (name === "NotFoundError" || name === "DevicesNotFoundError" || name === "OverconstrainedError") {
+      return "ไม่พบกล้องในอุปกรณ์นี้ กรุณากด “เลือกไฟล์ภาพ” แทน";
+    }
+    if (name === "NotReadableError" || name === "TrackStartError") {
+      return "กล้องกำลังถูกใช้งานโดยโปรแกรมอื่น กรุณาปิดโปรแกรมนั้นแล้วลองใหม่";
+    }
+    return "เปิดกล้องไม่สำเร็จ กรุณากด “เลือกไฟล์ภาพ” แทน";
+  }
+
+  function initCamera(root) {
+    function part(k) { return root.querySelector('[data-cam="' + k + '"]'); }
+    var input = root.querySelector('input[type="file"]');
+    var openBtn = part("open"), panel = part("panel"), video = part("video");
+    var shotBtn = part("shot"), switchBtn = part("switch"), closeBtn = part("close"), msg = part("msg");
+    var form = root.closest("form");
+    var stream = null, facing = "environment";
+
+    function say(text) { msg.textContent = text || ""; msg.hidden = !text; }
+
+    function stop() {
+      if (stream) { stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; }
+      video.srcObject = null;
+      panel.hidden = true;
+    }
+
+    var canCapture = typeof window.DataTransfer !== "undefined" && typeof window.File !== "undefined";
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !canCapture) {
+      openBtn.disabled = true;
+      say("เบราว์เซอร์นี้ไม่รองรับการเปิดกล้อง กรุณากด “เลือกไฟล์ภาพ” แทน");
+    } else if (!window.isSecureContext) {
+      openBtn.disabled = true;
+      say("การเปิดกล้องในเบราว์เซอร์ใช้ได้เฉพาะเมื่อเปิดเว็บผ่าน HTTPS (หรือ localhost) ตอนนี้กรุณากด “เลือกไฟล์ภาพ” แทน");
+    }
+
+    function start() {
+      say("");
+      stop();
+      return navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: facing }, width: { ideal: 1280 }, height: { ideal: 960 } },
+        audio: false
+      }).then(function (s) {
+        stream = s;
+        video.srcObject = s;
+        panel.hidden = false;
+        var p = video.play();
+        if (p && p.catch) { p.catch(function () { }); }
+        // มีกล้องมากกว่าหนึ่งตัว (เช่น มือถือ) จึงแสดงปุ่มสลับกล้อง
+        return navigator.mediaDevices.enumerateDevices().then(function (devs) {
+          switchBtn.hidden = devs.filter(function (d) { return d.kind === "videoinput"; }).length < 2;
+        }).catch(function () { });
+      }).catch(function (err) { say(cameraError(err)); });
+    }
+
+    function shoot() {
+      var w = video.videoWidth, h = video.videoHeight;
+      if (!w || !h) { say("กล้องยังไม่พร้อม รอสักครู่แล้วกดถ่ายภาพอีกครั้ง"); return; }
+      var scale = Math.min(1, MAX_SIDE / Math.max(w, h));
+      var canvas = document.createElement("canvas");
+      canvas.width = Math.round(w * scale);
+      canvas.height = Math.round(h * scale);
+      canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(function (blob) {
+        if (!blob) { say("ถ่ายภาพไม่สำเร็จ กรุณาลองใหม่"); return; }
+        var file = new File([blob], "meal-" + Date.now() + ".jpg", { type: "image/jpeg" });
+        var dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+        say("");
+        stop();
+        openBtn.textContent = "📷 ถ่ายใหม่";
+      }, "image/jpeg", 0.9);
+    }
+
+    openBtn.addEventListener("click", start);
+    shotBtn.addEventListener("click", shoot);
+    closeBtn.addEventListener("click", stop);
+    switchBtn.addEventListener("click", function () {
+      facing = facing === "environment" ? "user" : "environment";
+      start();
+    });
+    window.addEventListener("pagehide", stop);
+    if (form) {
+      form.addEventListener("submit", function (e) {
+        if (!input.files || input.files.length === 0) {
+          e.preventDefault();
+          say("กรุณาถ่ายภาพหรือเลือกไฟล์ภาพก่อน");
+          return;
+        }
+        stop();
+      });
+    }
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
+    Array.prototype.forEach.call(document.querySelectorAll("[data-camera]"), initCamera);
     Array.prototype.forEach.call(document.querySelectorAll("[data-picker]"), initPicker);
     var box = document.getElementById("mealPreview");
     if (box) { initPreview(box); }

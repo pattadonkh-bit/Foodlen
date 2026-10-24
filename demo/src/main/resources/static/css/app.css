@@ -354,6 +354,14 @@ section[id] { scroll-margin-top: 110px; }
 .preview-box b { color: var(--green-700); }
 .preview-box .big { font-size: 22px; font-weight: 700; color: var(--green-700); }
 
+/* ---------- ถ่ายภาพจากกล้องในเบราว์เซอร์ ---------- */
+.dropzone { position: relative; }
+.cam-actions { justify-content: center; margin: 12px 0; }
+.cam-box { margin-top: 12px; }
+.cam-box video { width: 100%; max-height: 60vh; border-radius: 16px; background: #000; display: block; object-fit: contain; }
+/* ซ่อนช่องเลือกไฟล์แบบยังคงอยู่ใน DOM (ใช้ปุ่ม "เลือกไฟล์ภาพ" แทน และให้กล้องใส่ไฟล์ให้ได้) */
+input.file-hidden { position: absolute; width: 1px !important; height: 1px; padding: 0 !important; border: 0 !important; opacity: 0; overflow: hidden; pointer-events: none; }
+
 /* ---------- Responsive ----------
    จุดตัด: 1024 (iPad แนวนอน/โน้ตบุ๊กเล็ก) · 900 (iPad แนวตั้ง/แท็บเล็ต) · 700 (แท็บเล็ตเล็ก/มือถือแนวนอน) · 560 (มือถือ) · 360 (มือถือจอเล็ก) */
 

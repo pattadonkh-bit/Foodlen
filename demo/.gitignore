@@ -41,3 +41,6 @@ yolo-service/__pycache__/
 
 ### Deploy ###
 .env
+
+### Python virtualenv ###
+.venv/

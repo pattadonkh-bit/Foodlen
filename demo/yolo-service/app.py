@@ -24,9 +24,15 @@ import os
 import re
 from pathlib import Path
 
-import numpy as np
-from flask import Flask, jsonify, request
-from PIL import Image, UnidentifiedImageError
+try:
+    import numpy as np
+    from flask import Flask, jsonify, request
+    from PIL import Image, UnidentifiedImageError
+except ImportError as e:  # ให้ข้อความที่บอกวิธีแก้ แทนที่จะเป็น traceback ลอยๆ
+    raise SystemExit(
+        f"ขาดไลบรารี Python: {e.name}\n"
+        "ติดตั้งด้วย:  python -m pip install -r requirements.txt  (หรือรัน run-ai.bat ซึ่งใช้ .venv)\n"
+        "ถ้า `python` ของคุณเป็นตัวที่ไม่มี pip (เช่นของ MSYS2) ให้ใช้ Python จาก python.org: py -3.10 -m venv .venv")
 
 BASE = Path(__file__).resolve().parent
 ONNX_PATH = BASE / "models" / "resnet50_thfood101.onnx"

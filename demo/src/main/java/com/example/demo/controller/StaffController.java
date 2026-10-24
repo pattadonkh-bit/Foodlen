@@ -57,7 +57,7 @@ public class StaffController {
         }
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"foodlen-class-" + LocalDate.now() + ".csv\"")
+                        "attachment; filename=\"nutrikid-class-" + LocalDate.now() + ".csv\"")
                 .contentType(new MediaType("text", "csv", StandardCharsets.UTF_8))
                 .body(sb.toString().getBytes(StandardCharsets.UTF_8));
     }

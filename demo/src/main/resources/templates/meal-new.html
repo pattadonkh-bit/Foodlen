@@ -16,10 +16,25 @@
     <div class="msg error" th:if="${error}" th:text="${error}"></div>
 
     <form class="card" th:action="@{/children/{id}/meals/analyze(id=${ov.child.id})}" method="post" enctype="multipart/form-data">
-        <div class="dropzone">
+        <div class="dropzone" data-camera>
             <div style="font-size:42px">🍛</div>
-            <label for="image" style="margin-top:0">เลือกภาพอาหาร</label>
-            <input type="file" id="image" name="image" accept="image/*" capture="environment" required>
+            <div class="row cam-actions">
+                <button type="button" class="btn" data-cam="open">📷 เปิดกล้องถ่ายภาพ</button>
+                <label class="btn secondary" for="image" style="margin:0">🖼️ เลือกไฟล์ภาพ</label>
+            </div>
+            <p class="muted" style="margin:0">ถ่ายภาพจากกล้องในเบราว์เซอร์ หรือเลือกภาพจากเครื่อง (บนมือถือเลือกถ่ายใหม่หรือเลือกจากคลังภาพได้)</p>
+
+            <div class="cam-box" data-cam="panel" hidden>
+                <video data-cam="video" playsinline muted autoplay></video>
+                <div class="row cam-actions">
+                    <button type="button" class="btn" data-cam="shot">📸 ถ่ายภาพ</button>
+                    <button type="button" class="btn secondary" data-cam="switch" hidden>🔄 สลับกล้อง</button>
+                    <button type="button" class="btn secondary" data-cam="close">ปิดกล้อง</button>
+                </div>
+            </div>
+            <div class="msg warn" data-cam="msg" hidden style="margin:12px 0 0;text-align:left"></div>
+
+            <input type="file" id="image" name="image" accept="image/*" class="file-hidden">
             <img id="preview" class="preview" alt="ตัวอย่างภาพ" style="display:none">
         </div>
 
