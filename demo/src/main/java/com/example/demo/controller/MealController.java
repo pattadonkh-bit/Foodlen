@@ -65,6 +65,7 @@ public class MealController {
 
     @GetMapping("/children/{id}/meals/new")
     public String newMeal(@PathVariable Long id, Model model) {
+        ai.wakeAsync(); // ปลุกบริการ AI ล่วงหน้า (แพ็กเกจฟรีหลับเมื่อไม่มีผู้ใช้) ระหว่างที่ผู้ใช้เลือกภาพ
         fillBase(model, id);
         return "meal-new";
     }
